@@ -1,9 +1,10 @@
 package savingsgoal
 
 import (
+	"testing"
+
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 type mockRepo struct {
@@ -36,7 +37,7 @@ func (m *mockRepo) Delete(id uuid.UUID) error      { return nil }
 
 func TestService_CreateAndList(t *testing.T) {
 	repo := &mockRepo{}
-	svc := NewService(repo)
+	svc := NewService(repo, nil)
 	userID := uuid.New()
 	goal, err := svc.Create(userID, "Trip to Japan", 5000, nil, true)
 	assert.NoError(t, err)

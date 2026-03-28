@@ -34,7 +34,7 @@ func (m *MockTransactionRepo) Delete(id uuid.UUID) error {
 
 func TestCreateTransaction(t *testing.T) {
 	repo := new(MockTransactionRepo)
-	svc := NewService(repo)
+	svc := NewService(repo, nil)
 	userID := uuid.New()
 	accountID := uuid.New()
 	categoryID := uuid.New()
