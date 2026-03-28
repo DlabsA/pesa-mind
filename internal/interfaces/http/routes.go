@@ -19,4 +19,13 @@ func RegisterRoutes(r *gin.Engine, deps *handlers.Dependencies) {
 	api.GET("/analytics/expenses", analytics.TotalExpenses)
 	api.GET("/analytics/budget-utilization", analytics.BudgetUtilization)
 	api.GET("/analytics/savings-progress", analytics.SavingsProgress)
+
+	// Gamification endpoints
+	gamification := handlers.NewGamificationHandler(deps.GamificationService)
+	api.GET("/gamification/badges", gamification.ListBadges)
+	api.GET("/gamification/streaks", gamification.ListStreaks)
+	api.GET("/gamification/achievements", gamification.ListAchievements)
+	api.GET("/gamification/leaderboard", gamification.GetLeaderboard)
+	api.GET("/gamification/rewards", gamification.ListRewards)
+	api.POST("/gamification/rewards/:reward_id/claim", gamification.ClaimReward)
 }

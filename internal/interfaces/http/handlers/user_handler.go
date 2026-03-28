@@ -1,10 +1,12 @@
 package handlers
 
 import (
-	"github.com/gin-gonic/gin"
 	"net/http"
 	"pesa-mind/internal/domain/user"
 	"pesa-mind/internal/interfaces/http/dto"
+
+	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type UserHandler struct {
@@ -21,8 +23,13 @@ func (h *UserHandler) Register(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	// Password hashing and validation will be handled in Auth
-	user, err := h.Service.Register(req.Email, req.Password)
+	// Hash the password before saving
+	hashed, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to hash password"})
+		return
+	}
+	user, err := h.Service.Register(req.Email, string(hashed))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

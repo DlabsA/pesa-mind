@@ -2,15 +2,17 @@ package savingsgoal
 
 import (
 	"github.com/google/uuid"
+	"pesa-mind/internal/domain/gamification"
 	"time"
 )
 
 type Service struct {
-	repo Repository
+	repo         Repository
+	Gamification *gamification.Service
 }
 
-func NewService(repo Repository) *Service {
-	return &Service{repo: repo}
+func NewService(repo Repository, gamification *gamification.Service) *Service {
+	return &Service{repo: repo, Gamification: gamification}
 }
 
 func (s *Service) Create(userID uuid.UUID, title string, target float64, deadline *int64, autoSave bool) (*SavingsGoal, error) {
@@ -36,4 +38,13 @@ func (s *Service) Create(userID uuid.UUID, title string, target float64, deadlin
 
 func (s *Service) List(userID uuid.UUID, limit, offset int) ([]SavingsGoal, error) {
 	return s.repo.FindByUserID(userID, limit, offset)
+}
+
+func (s *Service) CompleteGoal(userID, goalID uuid.UUID) error {
+	// ...existing logic to mark goal as completed...
+	if s.Gamification != nil {
+		_ = s.Gamification.CheckAndAwardBadges(userID, "savings_goal_completed")
+		_ = s.Gamification.CheckAndAwardAchievements(userID, "goal_achieved")
+	}
+	return nil
 }

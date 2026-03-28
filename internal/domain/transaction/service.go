@@ -4,14 +4,16 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"pesa-mind/internal/domain/gamification"
 )
 
 type Service struct {
-	repo TransactionRepository
+	repo         TransactionRepository
+	Gamification *gamification.Service
 }
 
-func NewService(repo TransactionRepository) *Service {
-	return &Service{repo: repo}
+func NewService(repo TransactionRepository, gamification *gamification.Service) *Service {
+	return &Service{repo: repo, Gamification: gamification}
 }
 
 func (s *Service) Create(userID, accountID, categoryID uuid.UUID, amount float64, txType, note string, date int64) (*Transaction, error) {
@@ -27,6 +29,10 @@ func (s *Service) Create(userID, accountID, categoryID uuid.UUID, amount float64
 	}
 	if err := s.repo.Create(tx); err != nil {
 		return nil, err
+	}
+	// Auto-award badge for first transaction
+	if s.Gamification != nil {
+		_ = s.Gamification.CheckAndAwardBadges(userID, "first_transaction")
 	}
 	return tx, nil
 }

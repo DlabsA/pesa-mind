@@ -4,11 +4,12 @@ import (
 	"net/http"
 	"time"
 
+	"pesa-mind/internal/domain/user"
+	"pesa-mind/internal/interfaces/http/dto"
+
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 	"golang.org/x/crypto/bcrypt"
-	"pesa-mind/internal/domain/user"
-	"pesa-mind/internal/interfaces/http/dto"
 )
 
 type AuthHandler struct {
@@ -29,6 +30,11 @@ func (h *AuthHandler) Login(c *gin.Context) {
 	u, err := h.UserService.GetByEmail(req.Email)
 	if err != nil || u == nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		return
+	}
+	// Defensive: check if hash is a valid bcrypt hash
+	if len(u.PasswordHash) < 20 {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials (hash)"})
 		return
 	}
 	if err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(req.Password)); err != nil {

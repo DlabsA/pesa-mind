@@ -104,3 +104,17 @@ func (h *NotificationHandler) SendEmailNotification(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"status": "email notification sent (stub)"})
 }
+
+func (h *NotificationHandler) MarkAsRead(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := uuid.Parse(idStr)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid notification id"})
+		return
+	}
+	if err := h.Service.MarkAsRead(id); err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, gin.H{"status": "read"})
+}

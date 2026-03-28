@@ -9,11 +9,16 @@ import (
 	"github.com/google/uuid"
 )
 
-type NotificationPreferenceHandler struct {
-	Service *notification.PreferenceService
+type PreferenceService interface {
+	Get(userID uuid.UUID) (*notification.Preference, error)
+	Set(userID uuid.UUID, inApp, push, email bool) error
 }
 
-func NewNotificationPreferenceHandler(s *notification.PreferenceService) *NotificationPreferenceHandler {
+type NotificationPreferenceHandler struct {
+	Service PreferenceService
+}
+
+func NewNotificationPreferenceHandler(s PreferenceService) *NotificationPreferenceHandler {
 	return &NotificationPreferenceHandler{Service: s}
 }
 

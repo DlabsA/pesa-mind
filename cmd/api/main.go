@@ -1,18 +1,20 @@
 package main
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
 	"log"
 	"pesa-mind/internal/config"
 	"pesa-mind/internal/infrastructure/db"
 	"pesa-mind/internal/infrastructure/logger"
+
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 
 	// Domain modules
 	"pesa-mind/internal/domain/account"
 	"pesa-mind/internal/domain/analytics"
 	"pesa-mind/internal/domain/budget"
 	"pesa-mind/internal/domain/category"
+	"pesa-mind/internal/domain/gamification"
 	"pesa-mind/internal/domain/savingsgoal"
 	"pesa-mind/internal/domain/transaction"
 	"pesa-mind/internal/domain/user"
@@ -37,7 +39,12 @@ func main() {
 	}
 
 	// GORM auto-migrate
-	db.DB.AutoMigrate(&user.User{}, &account.Account{}, &category.Category{}, &transaction.Transaction{})
+	if err := db.DB.AutoMigrate(&user.User{}, &account.Account{}, &category.Category{}, &transaction.Transaction{}); err != nil {
+		log.Fatalf("failed to migrate core tables: %v", err)
+	}
+	if err := db.DB.AutoMigrate(&gamification.Badge{}, &gamification.UserBadge{}, &gamification.Streak{}, &gamification.Achievement{}, &gamification.UserAchievement{}, &gamification.LeaderboardEntry{}, &gamification.Reward{}, &gamification.UserReward{}); err != nil {
+		log.Fatalf("failed to migrate gamification tables: %v", err)
+	}
 
 	// Instantiate repositories
 	userRepo := user.NewGormUserRepository(db.DB)
@@ -54,13 +61,17 @@ func main() {
 	// Notification module
 	notificationRepo := notification.NewGormRepository(db.DB)
 
+	// Gamification module
+	gamificationRepo := gamification.NewGormRepository(db.DB)
+	gamificationService := gamification.NewService(gamificationRepo)
+
 	// Instantiate services
 	userService := user.NewService(userRepo)
 	accountService := account.NewService(accountRepo)
 	categoryService := category.NewService(categoryRepo)
-	transactionService := transaction.NewService(transactionRepo)
+	transactionService := transaction.NewService(transactionRepo, gamificationService)
 	budgetService := budget.NewService(budgetRepo)
-	savingsGoalService := savingsgoal.NewService(savingsGoalRepo)
+	savingsGoalService := savingsgoal.NewService(savingsGoalRepo, gamificationService)
 	analyticsService := analytics.NewService(analyticsRepo)
 	analyticsServiceRealtime := analytics.NewAnalyticsService(db.DB, transactionRepo, budgetRepo, savingsGoalRepo)
 	automationService := automation.NewService(automationRepo)
@@ -83,6 +94,7 @@ func main() {
 	automationSMSHandler := handlers.NewAutomationSMSHandler(transactionService)
 	notificationHandler := handlers.NewNotificationHandler(notificationService)
 	preferenceHandler := handlers.NewNotificationPreferenceHandler(preferenceService)
+	gamificationHandler := handlers.NewGamificationHandler(gamificationService)
 
 	engine := gin.Default()
 
@@ -124,6 +136,14 @@ func main() {
 			// Notification preference endpoints
 			auth.GET("/notifications/preferences", preferenceHandler.Get)
 			auth.POST("/notifications/preferences", preferenceHandler.Set)
+
+			// Gamification endpoints
+			auth.GET("/gamification/badges", gamificationHandler.ListBadges)
+			auth.GET("/gamification/streaks", gamificationHandler.ListStreaks)
+			auth.GET("/gamification/achievements", gamificationHandler.ListAchievements)
+			auth.GET("/gamification/leaderboard", gamificationHandler.GetLeaderboard)
+			auth.GET("/gamification/rewards", gamificationHandler.ListRewards)
+			auth.POST("/gamification/rewards/:reward_id/claim", gamificationHandler.ClaimReward)
 		}
 	}
 
