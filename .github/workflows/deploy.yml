@@ -74,7 +74,17 @@ jobs:
         run: |
           ssh deploy@${{ secrets.SERVER_IP }} << 'EOF'
             # Navigate to the project directory or clone the repository if it doesn't exist
-            if [ ! -d "/home/deploy/pesa-mind/.git" ]; then
+            # Check if the directory exists and is a Git repository
+            if [ -d "/home/deploy/pesa-mind" ]; then
+              if [ ! -d "/home/deploy/pesa-mind/.git" ]; then
+                echo "Directory exists but is not a Git repository. Removing it..."
+                rm -rf /home/deploy/pesa-mind
+              fi
+            fi
+
+            # Clone the repository if it doesn't exist
+            if [ ! -d "/home/deploy/pesa-mind" ]; then
+              echo "Cloning the repository..."
               git clone git@github.com:DlabsA/pesa-mind.git /home/deploy/pesa-mind
             fi
 
