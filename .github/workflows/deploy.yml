@@ -47,6 +47,18 @@ jobs:
           echo "Testing repository access..."
           ssh -o StrictHostKeyChecking=no deploy@${{ secrets.SERVER_IP }} "git ls-remote git@github.com:DlabsA/pesa-mind.git HEAD" || echo "Repository access failed. Check deploy key permissions."
 
+      # Step 3.3: Debug Host Key Verification
+      - name: Debug Host Key Verification
+        run: |
+          echo "Testing host key verification..."
+          ssh -o StrictHostKeyChecking=no deploy@${{ secrets.SERVER_IP }} "echo 'SSH connection successful'" || echo "Host key verification failed. Ensure the server's fingerprint is added to known_hosts."
+
+      # Step 3.4: Debug Known Hosts File
+      - name: Debug Known Hosts File
+        run: |
+          echo "Known hosts file content after adding server's fingerprint:"
+          cat ~/.ssh/known_hosts || echo "Failed to read known_hosts file."
+
       # Step 4: Pull the latest changes on the server
       - name: Deploy application
         run: |
