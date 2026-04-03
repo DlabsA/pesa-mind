@@ -6,8 +6,6 @@ services:
       POSTGRES_USER: pesamind
       POSTGRES_PASSWORD: pesamind123
       POSTGRES_DB: pesamind
-    ports:
-      - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
       - ./postgres-init.sql:/docker-entrypoint-initdb.d/init.sql
