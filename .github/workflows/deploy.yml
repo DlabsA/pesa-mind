@@ -37,7 +37,6 @@ jobs:
             git pull origin main
 
             # Write production .env from GitHub secret (if you store it)
-#            echo "${{ secrets.ENV_FILE }}" > .env   # uncomment if needed
 
             # Rebuild and restart in detached mode
             docker compose down -v && docker compose up --build 
