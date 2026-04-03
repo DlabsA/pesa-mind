@@ -20,6 +20,13 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
+      # Step 2.1: Debug SSH key setup
+      - name: Debug SSH Key
+        run: |
+          echo "Validating SSH key setup..."
+          ssh-add -l
+          ssh -T git@github.com || echo "SSH key validation failed. Ensure the key is added as a deploy key in GitHub."
+
       # Step 3: Add server's SSH fingerprint to known_hosts
       - name: Add server to known_hosts
         run: |
