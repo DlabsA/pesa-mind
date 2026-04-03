@@ -15,6 +15,7 @@ type Config struct {
 	DBPassword         string
 	DBName             string
 	DBSSLMode          string
+	DatabaseURL        string
 	JWTSecret          string
 	JWTExpiry          string
 	RefreshTokenExpiry string
@@ -32,6 +33,7 @@ func LoadConfig() *Config {
 	viper.SetDefault("DB_PASSWORD", "pesamind123")
 	viper.SetDefault("DB_NAME", "pesamind")
 	viper.SetDefault("DB_SSLMODE", "disable")
+	viper.SetDefault("DATABASE_URL", "")
 	viper.SetDefault("JWT_SECRET", "super-secret-change-in-production")
 	viper.SetDefault("JWT_EXPIRY", "15m")
 	viper.SetDefault("REFRESH_TOKEN_EXPIRY", "30d")
