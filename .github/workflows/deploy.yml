@@ -30,14 +30,22 @@ jobs:
       # Step 3: Add server's SSH fingerprint to known_hosts
       - name: Add server to known_hosts
         run: |
+          echo "Adding server's SSH fingerprint to known_hosts..."
           ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
           echo "Known hosts file content:"  # Debugging information
           cat ~/.ssh/known_hosts
 
-      # Step 3.1: Test SSH connection
-      - name: Test SSH connection
+      # Step 3.1: Debug SSH key setup
+      - name: Debug SSH Key Setup
         run: |
-          ssh -o StrictHostKeyChecking=no deploy@${{ secrets.SERVER_IP }} "echo 'SSH connection successful'"
+          echo "Testing SSH key setup..."
+          ssh -T git@github.com || echo "SSH key validation failed. Ensure the key is added as a deploy key in GitHub."
+
+      # Step 3.2: Verify repository access
+      - name: Verify Repository Access
+        run: |
+          echo "Testing repository access..."
+          ssh -o StrictHostKeyChecking=no deploy@${{ secrets.SERVER_IP }} "git ls-remote git@github.com:DlabsA/pesa-mind.git HEAD" || echo "Repository access failed. Check deploy key permissions."
 
       # Step 4: Pull the latest changes on the server
       - name: Deploy application
