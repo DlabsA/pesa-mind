@@ -39,7 +39,7 @@ jobs:
             # Write production .env from GitHub secret (if you store it)
 
             # Rebuild and restart in detached mode
-            docker compose down -v && docker compose up --build 
+            docker compose down -v && docker compose up --build -d
 
             # Remove dangling images to save disk space
             docker image prune -f
