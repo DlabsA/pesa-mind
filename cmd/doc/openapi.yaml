@@ -927,6 +927,45 @@ paths:
       summary: List Gamification Streaks
       tags:
       - gamification
+  /health:
+    get:
+      operationId: get_health
+      responses:
+        "200":
+          description: OK
+        "400":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Bad Request
+        "401":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Unauthorized
+        "403":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Forbidden
+        "404":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Not Found
+        "500":
+          content:
+            application/problem+json:
+              schema:
+                $ref: "#/components/schemas/Problem"
+          description: Internal Server Error
+      summary: List Health
+      tags:
+      - health
   /notifications:
     get:
       operationId: get_notifications
@@ -1292,6 +1331,7 @@ tags:
 - name: budgets
 - name: categories
 - name: gamification
+- name: health
 - name: notifications
 - name: savingsgoals
 - name: transactions
