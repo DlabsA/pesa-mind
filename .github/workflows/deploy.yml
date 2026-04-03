@@ -59,6 +59,16 @@ jobs:
           echo "Known hosts file content after adding server's fingerprint:"
           cat ~/.ssh/known_hosts || echo "Failed to read known_hosts file."
 
+      # Step 3.5: Clean Up and Re-add Host Key
+      - name: Clean Up and Re-add Host Key
+        run: |
+          echo "Cleaning up and re-adding the host key..."
+          ssh-keygen -R ${{ secrets.SERVER_IP }} || echo "No existing host key to remove."
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
+          echo "Re-added server's SSH fingerprint to known_hosts."
+          echo "Updated known_hosts file content:"  # Debugging information
+          cat ~/.ssh/known_hosts
+
       # Step 4: Pull the latest changes on the server
       - name: Deploy application
         run: |
