@@ -1,3 +1,5 @@
+//go:generate autodoc-gen -router=gin
+
 package main
 
 import (
