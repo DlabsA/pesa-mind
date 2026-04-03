@@ -20,22 +20,26 @@ jobs:
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
 
-      # Step 3: Copy project files to the server using rsync
-      - name: Copy files to server
+      # Step 3: Add server's SSH fingerprint to known_hosts
+      - name: Add server to known_hosts
         run: |
-          rsync -avz --exclude '.git*' --exclude 'test/' --exclude 'doc/' ./ deploy@${{ secrets.SERVER_IP }}:/home/deploy/pesa-mind
+          ssh-keyscan -H ${{ secrets.SERVER_IP }} >> ~/.ssh/known_hosts
 
-      # Step 4: Copy .env file to the server
-      - name: Copy .env file
-        run: |
-          echo "$ENV_FILE_CONTENT" | ssh deploy@${{ secrets.SERVER_IP }} 'cat > /home/deploy/pesa-mind/.env'
-        env:
-          ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
-
-      # Step 5: Deploy the application on the server
-      - name: Deploy on server
+      # Step 4: Pull the latest changes on the server
+      - name: Deploy application
         run: |
           ssh deploy@${{ secrets.SERVER_IP }} << 'EOF'
+            # Navigate to the project directory or clone the repository if it doesn't exist
+            if [ ! -d "/home/deploy/pesa-mind/.git" ]; then
+              git clone git@github.com:DlabsA/pesa-mind.git /home/deploy/pesa-mind
+            fi
+
+            cd /home/deploy/pesa-mind
+
+            # Pull the latest changes
+            git reset --hard
+            git pull origin main
+
             # Ensure Docker Compose is installed and up-to-date
             if ! command -v docker compose &> /dev/null; then
               echo "Docker Compose not found. Installing..."
@@ -43,11 +47,15 @@ jobs:
               sudo chmod +x /usr/local/bin/docker-compose
             fi
 
-            # Navigate to the project directory
-            cd /home/deploy/pesa-mind
+            # Ensure the .env file exists
+            if [ ! -f ".env" ]; then
+              echo "$ENV_FILE_CONTENT" > .env
+            fi
 
             # Build and restart the application
             docker compose build --no-cache
             docker compose down
             docker compose up -d --remove-orphans
           EOF
+        env:
+          ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
