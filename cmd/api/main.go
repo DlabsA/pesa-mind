@@ -149,6 +149,13 @@ func main() {
 		}
 	}
 
+	// Add a health check endpoint
+	engine.GET("/health", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"status": "ok",
+		})
+	})
+
 	port := cfg.Port
 	if port == "" {
 		port = "8080"
