@@ -69,6 +69,30 @@ jobs:
           echo "Updated known_hosts file content:"  # Debugging information
           cat ~/.ssh/known_hosts
 
+      # Step 3.6: Test SSH Connection to Server
+      - name: Test SSH Connection
+        run: |
+          echo "Testing SSH connection to the server..."
+          ssh -o StrictHostKeyChecking=no deploy@${{ secrets.SERVER_IP }} "echo 'SSH connection successful'" || echo "SSH connection failed. Check server IP and SSH key."
+
+      # Step 3.7: Ensure Git is Installed on Server
+      - name: Ensure Git is Installed
+        run: |
+          ssh deploy@${{ secrets.SERVER_IP }} << 'EOF'
+            if ! command -v git &> /dev/null; then
+              echo "Git not found. Installing Git..."
+              sudo apt-get update && sudo apt-get install -y git
+            fi
+          EOF
+
+      # Step 3.8: Debug Repository Cloning
+      - name: Debug Repository Cloning
+        run: |
+          ssh deploy@${{ secrets.SERVER_IP }} << 'EOF'
+            echo "Testing repository cloning..."
+            git ls-remote git@github.com:DlabsA/pesa-mind.git HEAD || echo "Repository cloning failed. Check deploy key permissions."
+          EOF
+
       # Step 4: Pull the latest changes on the server
       - name: Deploy application
         run: |
