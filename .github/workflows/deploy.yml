@@ -33,6 +33,9 @@ jobs:
             # Path where the repo lives on your server
             cd ~/pesa-mind
 
+#            Restore deploy.sh to ensure we have the latest version from the repo
+            git restore deploy.sh
+
             echo "📦 Pulling latest changes..."
             git pull origin main
 

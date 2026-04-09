@@ -1,3 +1,26 @@
-api.dlabs.cc  {
+# Production domain - Let's Encrypt (requires proper DNS)
+# Only uncomment when DNS is properly configured
+# api.dlabs.cc {
+#     reverse_proxy app:8080
+# }
+
+# Development/Staging - Self-signed certificates
+# HTTP (port 80)
+http://:80 {
     reverse_proxy app:8080
 }
+
+# HTTPS with self-signed cert (port 443)
+https://:443 {
+    tls internal
+    reverse_proxy app:8080
+}
+
+# Wildcard for any other hostname with self-signed cert
+* {
+    tls internal
+    reverse_proxy app:8080
+}
+
+
+
