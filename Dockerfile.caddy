@@ -1,0 +1,11 @@
+FROM caddy:alpine
+
+# Install required packages for certificate management
+RUN apk add --no-cache \
+    nss-tools \
+    curl \
+    wget
+
+# Verify installation
+RUN which certutil && echo "certutil installed successfully"
+

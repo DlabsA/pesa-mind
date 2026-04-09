@@ -40,7 +40,9 @@ services:
       start_period: 15s
 
   caddy:
-    image: caddy:alpine
+    build:
+      context: .
+      dockerfile: Dockerfile.caddy
     ports:
       - "8080:80"
       - "8443:443"
