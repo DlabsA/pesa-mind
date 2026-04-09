@@ -14,20 +14,23 @@ func NewService(repo UserRepository) *Service {
 
 func (s *Service) Register(email, passwordHash string) (*User, error) {
 	user := &User{
-		ID:           uuid.New(),
 		Email:        email,
 		PasswordHash: passwordHash,
 	}
-	if err := s.repo.Create(user); err != nil {
+	userProfile := UserProfile{
+		user:     user,
+		username: user.Profile.Username,
+	}
+	if err := s.repo.Create(userProfile); err != nil {
 		return nil, err
 	}
 	return user, nil
 }
 
-func (s *Service) GetByID(id uuid.UUID) (*User, error) {
+func (s *Service) GetByID(id uuid.UUID) (*User, *Profile, error) {
 	return s.repo.FindByID(id)
 }
 
-func (s *Service) GetByEmail(email string) (*User, error) {
+func (s *Service) GetByEmail(email string) (*User, *Profile, error) {
 	return s.repo.FindByEmail(email)
 }

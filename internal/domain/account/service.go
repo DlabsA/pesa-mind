@@ -1,6 +1,8 @@
 package account
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+)
 
 type Service struct {
 	repo AccountRepository
@@ -11,17 +13,17 @@ func NewService(repo AccountRepository) *Service {
 }
 
 func (s *Service) Create(userID uuid.UUID, name, accType, currency string) (*Account, error) {
-	account := &Account{
-		ID:       uuid.New(),
+	acc := &Account{
 		UserID:   userID,
 		Name:     name,
 		Type:     accType,
 		Currency: currency,
+		Balance:  0.0,
 	}
-	if err := s.repo.Create(account); err != nil {
+	if err := s.repo.Create(acc); err != nil {
 		return nil, err
 	}
-	return account, nil
+	return acc, nil
 }
 
 func (s *Service) GetByID(id uuid.UUID) (*Account, error) {

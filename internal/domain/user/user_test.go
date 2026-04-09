@@ -10,17 +10,25 @@ import (
 
 type MockUserRepo struct{ mock.Mock }
 
-func (m *MockUserRepo) Create(user *User) error {
-	args := m.Called(user)
+func (m *MockUserRepo) Create(userProfile UserProfile) error {
+	args := m.Called(userProfile)
 	return args.Error(0)
 }
-func (m *MockUserRepo) FindByID(id uuid.UUID) (*User, error) {
+func (m *MockUserRepo) FindByID(id uuid.UUID) (*User, *Profile, error) {
 	args := m.Called(id)
-	return args.Get(0).(*User), args.Error(1)
+	user := args.Get(0)
+	if user != nil {
+		return user.(*User), nil, args.Error(1)
+	}
+	return nil, nil, args.Error(1)
 }
-func (m *MockUserRepo) FindByEmail(email string) (*User, error) {
+func (m *MockUserRepo) FindByEmail(email string) (*User, *Profile, error) {
 	args := m.Called(email)
-	return args.Get(0).(*User), args.Error(1)
+	user := args.Get(0)
+	if user != nil {
+		return user.(*User), nil, args.Error(1)
+	}
+	return nil, nil, args.Error(1)
 }
 func (m *MockUserRepo) Update(user *User) error {
 	args := m.Called(user)
@@ -36,7 +44,9 @@ func TestRegister(t *testing.T) {
 	svc := NewService(repo)
 	email := "test@example.com"
 	passwordHash := "hashedpass"
-	repo.On("Create", mock.AnythingOfType("*user.User")).Return(nil)
+	repo.On("Create", mock.MatchedBy(func(up UserProfile) bool {
+		return up.user.Email == email && up.username == email
+	})).Return(nil)
 	user, err := svc.Register(email, passwordHash)
 	assert.NoError(t, err)
 	assert.Equal(t, email, user.Email)
@@ -46,9 +56,10 @@ func TestGetByID(t *testing.T) {
 	repo := new(MockUserRepo)
 	svc := NewService(repo)
 	id := uuid.New()
-	expected := &User{ID: id, Email: "id@example.com", PasswordHash: "hash"}
+	expected := &User{Email: "id@example.com", PasswordHash: "hash"}
+	expected.ID = id
 	repo.On("FindByID", id).Return(expected, nil)
-	user, err := svc.GetByID(id)
+	user, _, err := svc.GetByID(id)
 	assert.NoError(t, err)
 	assert.Equal(t, expected, user)
 }
@@ -57,9 +68,10 @@ func TestGetByEmail(t *testing.T) {
 	repo := new(MockUserRepo)
 	svc := NewService(repo)
 	email := "mail@example.com"
-	expected := &User{ID: uuid.New(), Email: email, PasswordHash: "hash"}
+	expected := &User{Email: email, PasswordHash: "hash"}
+	expected.ID = uuid.New()
 	repo.On("FindByEmail", email).Return(expected, nil)
-	user, err := svc.GetByEmail(email)
+	user, _, err := svc.GetByEmail(email)
 	assert.NoError(t, err)
 	assert.Equal(t, expected, user)
 }

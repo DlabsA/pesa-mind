@@ -29,10 +29,26 @@ func (h *UserHandler) Register(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to hash password"})
 		return
 	}
-	user, err := h.Service.Register(req.Email, string(hashed))
+	usr, err := h.Service.Register(req.Email, string(hashed))
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusCreated, dto.UserResponse{ID: user.ID.String(), Email: user.Email})
+
+	resp := dto.UserResponse{
+		ID:    usr.ID.String(),
+		Email: usr.Email,
+	}
+
+	if usr.Profile != nil {
+		resp.Profile = &dto.ProfileData{
+			ID:       usr.Profile.ID.String(),
+			UserID:   usr.Profile.UserID.String(),
+			Username: usr.Profile.Username,
+			Type:     usr.Profile.Type,
+			Balance:  usr.Profile.Balance,
+		}
+	}
+
+	c.JSON(http.StatusCreated, resp)
 }

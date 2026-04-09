@@ -6,6 +6,15 @@ type RegisterRequest struct {
 }
 
 type UserResponse struct {
-	ID    string `json:"id"`
-	Email string `json:"email"`
+	ID      string       `json:"id"`
+	Email   string       `json:"email"`
+	Profile *ProfileData `json:"profile,omitempty"`
+}
+
+type ProfileData struct {
+	ID       string  `json:"id"`
+	UserID   string  `json:"user_id"`
+	Username string  `json:"username"`
+	Type     string  `json:"type"`
+	Balance  float64 `json:"balance"`
 }

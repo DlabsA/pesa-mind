@@ -27,18 +27,14 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	u, err := h.UserService.GetByEmail(req.Email)
-	if err != nil || u == nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+	u, profile, err := h.UserService.GetByEmail(req.Email)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
 		return
 	}
-	// Defensive: check if hash is a valid bcrypt hash
-	if len(u.PasswordHash) < 20 {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials (hash)"})
-		return
-	}
+	// Verify password
 	if err := bcrypt.CompareHashAndPassword([]byte(u.PasswordHash), []byte(req.Password)); err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid credentials"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "invalid email or password"})
 		return
 	}
 	accessToken, err := h.generateJWT(u.ID.String(), 15*time.Minute)
@@ -51,7 +47,23 @@ func (h *AuthHandler) Login(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "token error"})
 		return
 	}
-	c.JSON(http.StatusOK, dto.LoginResponse{AccessToken: accessToken, RefreshToken: refreshToken})
+
+	resp := dto.LoginResponse{
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
+	}
+
+	if profile != nil {
+		resp.Profile = &dto.ProfileData{
+			ID:       profile.ID.String(),
+			UserID:   profile.UserID.String(),
+			Username: profile.Username,
+			Type:     profile.Type,
+			Balance:  profile.Balance,
+		}
+	}
+
+	c.JSON(http.StatusOK, resp)
 }
 
 func (h *AuthHandler) Refresh(c *gin.Context) {
