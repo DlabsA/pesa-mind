@@ -40,6 +40,7 @@ jobs:
             chmod +x deploy.sh
 
             echo "🚀 Running automated deployment..."
+            export CI=true
             ./deploy.sh
 
             echo "✅ Deployment script completed successfully"
@@ -80,4 +81,6 @@ jobs:
           echo "  2. Check logs: docker logs pesa-mind-app-1"
           echo "  3. Check status: docker ps"
           echo "  4. Redeploy manually: cd ~/pesa-mind && ./deploy.sh"
+
+
 
