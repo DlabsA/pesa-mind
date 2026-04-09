@@ -32,6 +32,8 @@ jobs:
 
             # Path where the repo lives on your server
             cd ~/pesa-mind
+          
+            git restore .
 
             echo "📦 Pulling latest changes..."
             git pull origin main

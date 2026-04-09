@@ -21,8 +21,8 @@ services:
   app:
     build: .
     command: ./pesa-mind
-    expose:
-      - "8080"
+    ports:
+      - "8080:8080"
     env_file:
       - .env
     volumes:
@@ -37,28 +37,6 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-
-  caddy:
-    image: caddy:alpine
-    ports:
-      - "8080:80"
-      - "8443:443"
-    volumes:
-      - ./Caddyfile:/etc/caddy/Caddyfile:ro
-      - caddy_data:/data
-      - caddy_config:/config
-    healthcheck:
-      test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:2019/metrics" ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    networks:
-      - internal
-    depends_on:
-      - app
-    restart: unless-stopped
-
 
 networks:
   internal:
