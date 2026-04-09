@@ -17,7 +17,7 @@ NC='\033[0m' # No Color
 
 # Step 1: Stop current deployment
 echo -e "${YELLOW}Step 1: Stopping current containers...${NC}"
-docker-compose down || true
+docker compose down || true
 echo -e "${GREEN}✅ Containers stopped${NC}"
 echo ""
 
@@ -26,7 +26,7 @@ echo -e "${YELLOW}Step 2: Cleaning up (optional)${NC}"
 read -p "Remove old volumes? (y/n) " -n 1 -r
 echo
 if [[ $REPLY =~ ^[Yy]$ ]]; then
-    docker-compose down -v
+    docker compose down -v
     echo -e "${GREEN}✅ Volumes removed${NC}"
 else
     echo -e "${GREEN}✅ Volumes retained${NC}"
@@ -35,7 +35,7 @@ echo ""
 
 # Step 3: Rebuild and deploy
 echo -e "${YELLOW}Step 3: Building and deploying new containers...${NC}"
-docker-compose up -d
+docker compose up -d
 echo -e "${GREEN}✅ Containers deployed${NC}"
 echo ""
 
@@ -46,7 +46,7 @@ sleep 10
 # Check database
 echo "Checking database..."
 for i in {1..30}; do
-    if docker-compose exec -T db pg_isready -U pesamind > /dev/null 2>&1; then
+    if docker compose exec -T db pg_isready -U pesamind > /dev/null 2>&1; then
         echo -e "${GREEN}✅ Database is healthy${NC}"
         break
     fi
@@ -95,7 +95,7 @@ curl -s http://localhost:8080/health | jq '.' 2>/dev/null || echo "Health endpoi
 echo ""
 echo "📝 Container Status:"
 echo "==================="
-docker-compose ps
+docker ps
 echo ""
 echo "🎉 Ready to use!"
 
