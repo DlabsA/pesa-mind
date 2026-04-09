@@ -44,8 +44,12 @@ services:
       context: .
       dockerfile: Dockerfile.caddy
     ports:
-      - "8080:80"
-      - "8443:443"
+      # HTTP mappings
+      - "80:80"          # Standard HTTP
+      - "8080:8080"      # Alternative HTTP port
+      # HTTPS mappings
+      - "443:443"        # Standard HTTPS
+      - "8443:8443"      # Alternative HTTPS port
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
