@@ -12,14 +12,21 @@ func NewService(repo UserRepository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) Register(email, passwordHash string) (*User, error) {
+// ...existing code...
+
+func (s *Service) Register(email, passwordHash string, username string) (*User, error) {
+	// Default username to email if not provided
+	if username == "" {
+		username = email
+	}
+
 	user := &User{
 		Email:        email,
 		PasswordHash: passwordHash,
 	}
 	userProfile := UserProfile{
 		user:     user,
-		username: user.Profile.Username,
+		username: username,
 	}
 	if err := s.repo.Create(userProfile); err != nil {
 		return nil, err

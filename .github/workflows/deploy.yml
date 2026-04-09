@@ -22,7 +22,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SERVER_HOST }} >> ~/.ssh/known_hosts
 
-      # ── 2. SSH in, pull latest code, rebuild & restart containers ────────────
+      # ── 2. SSH in, pull latest code, make deploy.sh executable, then deploy ──
       - name: Deploy via SSH
         run: |
           ssh -i ~/.ssh/id_rsa -o StrictHostKeyChecking=no \
@@ -33,21 +33,51 @@ jobs:
             # Path where the repo lives on your server
             cd ~/pesa-mind
 
-            # Pull latest changes
+            echo "📦 Pulling latest changes..."
             git pull origin main
 
-            # Write production .env from GitHub secret (if you store it)
+            echo "🔧 Making deploy script executable..."
+            chmod +x deploy.sh
 
-            # Rebuild and restart in detached mode
-            docker compose down -v && docker compose up --build -d
+            echo "🚀 Running automated deployment..."
+            ./deploy.sh
 
-            # Remove dangling images to save disk space
-            docker image prune -f
+            echo "✅ Deployment script completed successfully"
 
           EOF
 
-      # ── 3. (Optional) Quick health check ────────────────────────────────────
+      # ── 3. Health check on the application ─────────────────────────────────
       - name: Health check
         run: |
-          sleep 5
-          curl --fail http://${{ secrets.SERVER_HOST }}:8080/health || echo "Health check endpoint not found – check manually"
+          echo "⏳ Waiting 10 seconds for service to stabilize..."
+          sleep 10
+          echo "🏥 Checking health endpoint..."
+          curl -f http://${{ secrets.SERVER_HOST }}:8080/health && echo "✅ Health check passed" || (echo "❌ Health check failed" && exit 1)
+
+      # ── 4. Post deployment info ────────────────────────────────────────────
+      - name: Deployment summary
+        if: success()
+        run: |
+          echo "✅ Deployment Successful!"
+          echo ""
+          echo "🌐 Access URLs:"
+          echo "  HTTP:  http://${{ secrets.SERVER_HOST }}:8080"
+          echo "  HTTPS: https://${{ secrets.SERVER_HOST }}:8443"
+          echo ""
+          echo "📋 Useful commands:"
+          echo "  ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}"
+          echo "  cd ~/pesa-mind && docker ps"
+          echo "  docker logs pesa-mind-app-1"
+
+      # ── 5. Failure notification ────────────────────────────────────────────
+      - name: Deployment failed
+        if: failure()
+        run: |
+          echo "❌ Deployment Failed!"
+          echo ""
+          echo "📝 Debug steps:"
+          echo "  1. SSH to server: ssh ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_HOST }}"
+          echo "  2. Check logs: docker logs pesa-mind-app-1"
+          echo "  3. Check status: docker ps"
+          echo "  4. Redeploy manually: cd ~/pesa-mind && ./deploy.sh"
+

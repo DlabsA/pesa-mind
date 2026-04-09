@@ -29,7 +29,9 @@ func (h *UserHandler) Register(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to hash password"})
 		return
 	}
-	usr, err := h.Service.Register(req.Email, string(hashed))
+
+	// Pass username (will default to email in service if empty)
+	usr, err := h.Service.Register(req.Email, string(hashed), req.Username)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
