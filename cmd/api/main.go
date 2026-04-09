@@ -40,11 +40,57 @@ func main() {
 		log.Fatalf("failed to connect to db: %v", err)
 	}
 
-	// GORM auto-migrate
-	if err := db.DB.AutoMigrate(&user.User{}, &account.Account{}, &category.Category{}, &transaction.Transaction{}); err != nil {
+	// GORM auto-migrate - ALL domain models
+	// Core domain tables
+	if err := db.DB.AutoMigrate(
+		&user.User{},
+		&user.Profile{},
+		&account.Account{},
+		&category.Category{},
+		&transaction.Transaction{},
+	); err != nil {
 		log.Fatalf("failed to migrate core tables: %v", err)
 	}
-	if err := db.DB.AutoMigrate(&gamification.Badge{}, &gamification.UserBadge{}, &gamification.Streak{}, &gamification.Achievement{}, &gamification.UserAchievement{}, &gamification.LeaderboardEntry{}, &gamification.Reward{}, &gamification.UserReward{}); err != nil {
+
+	// Budget tables
+	if err := db.DB.AutoMigrate(&budget.Budget{}); err != nil {
+		log.Fatalf("failed to migrate budget tables: %v", err)
+	}
+
+	// Savings Goal tables
+	if err := db.DB.AutoMigrate(&savingsgoal.SavingsGoal{}); err != nil {
+		log.Fatalf("failed to migrate savings goal tables: %v", err)
+	}
+
+	// Analytics tables
+	if err := db.DB.AutoMigrate(&analytics.AnalyticsSnapshot{}); err != nil {
+		log.Fatalf("failed to migrate analytics tables: %v", err)
+	}
+
+	// Automation tables
+	if err := db.DB.AutoMigrate(&automation.SMSAutomation{}); err != nil {
+		log.Fatalf("failed to migrate automation tables: %v", err)
+	}
+
+	// Notification tables
+	if err := db.DB.AutoMigrate(
+		&notification.Notification{},
+		&notification.Preference{},
+	); err != nil {
+		log.Fatalf("failed to migrate notification tables: %v", err)
+	}
+
+	// Gamification tables
+	if err := db.DB.AutoMigrate(
+		&gamification.Badge{},
+		&gamification.UserBadge{},
+		&gamification.Streak{},
+		&gamification.Achievement{},
+		&gamification.UserAchievement{},
+		&gamification.LeaderboardEntry{},
+		&gamification.Reward{},
+		&gamification.UserReward{},
+	); err != nil {
 		log.Fatalf("failed to migrate gamification tables: %v", err)
 	}
 
