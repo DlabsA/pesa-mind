@@ -7,10 +7,10 @@ import (
 // User represents an application user. PasswordHash is omitted from JSON responses.
 type User struct {
 	utils.BaseModel
-	Email        string   `gorm:"uniqueIndex;not null" json:"email" validate:"required,email"`
-	PasswordHash string   `gorm:"not null" json:"-"`
+	Email        string `gorm:"uniqueIndex;not null" json:"email" validate:"required,email"`
+	PasswordHash string `gorm:"not null" json:"-"`
 	// One-to-one relationship to Profile. Cascade delete profile when user is deleted.
-	Profile      *Profile `gorm:"foreignKey:UserID;references:ID;constraint:OnDelete:CASCADE" json:"profile,omitempty"`
+	Profile *Profile `gorm:"foreignKey:UserID;references:ID;constraint:OnDelete:CASCADE" json:"profile,omitempty"`
 }
 
 // Profile contains user profile details and is linked to User via UserID.

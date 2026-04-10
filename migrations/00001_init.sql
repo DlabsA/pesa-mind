@@ -1,6 +1,9 @@
 -- +goose Up
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+DROP TABLE IF EXISTS profiles;
+DROP TABLE IF EXISTS users;
+
 -- Create users table
 CREATE TABLE IF NOT EXISTS users (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
@@ -24,7 +27,7 @@ CREATE TABLE IF NOT EXISTS profiles (
     deleted_at TIMESTAMP WITH TIME ZONE,
     CONSTRAINT fk_profiles_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     CONSTRAINT uni_profiles_username UNIQUE (username),
-    CONSTRAINT uni_profiles_userid UNIQUE (user_id)
+    CONSTRAINT uni_profiles_user_id UNIQUE (user_id)
 );
 
 -- Seed default admin user if not exists
