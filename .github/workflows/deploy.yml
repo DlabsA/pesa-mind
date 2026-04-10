@@ -2,8 +2,8 @@ name: Deploy to Server
 
 on:
   push:
-    tags:
-      - 'v*'
+    branches:
+      - main
 
 jobs:
   deploy:
