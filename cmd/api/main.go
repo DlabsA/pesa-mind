@@ -153,6 +153,14 @@ func main() {
 		api.POST("/auth/login", authHandler.Login)
 		api.POST("/auth/refresh", authHandler.Refresh)
 
+		userAuth := api.Group("/users/me")
+		userAuth.Use(middleware.JWTAuthMiddleware())
+		{
+			userAuth.GET("", userHandler.Get)                             // GET /api/v1/users/me
+			userAuth.PATCH("", userHandler.Update)                        // PATCH /api/v1/users/me  (partial update)
+			userAuth.POST("/change_password", userHandler.ChangePassword) // POST /api/v1/users/me/change_password
+		}
+
 		// Protected routes
 		auth := api.Group("")
 		auth.Use(middleware.JWTAuthMiddleware())
