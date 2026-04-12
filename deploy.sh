@@ -19,12 +19,6 @@ NC='\033[0m' # No Color
 echo -e "${YELLOW}Step 1: Stopping current containers...${NC}"
 docker compose down -v && docker compose up --build -d
 
-# Step 3: Rebuild and deploy
-echo -e "${YELLOW}Step 3: Building and deploying new containers...${NC}"
-docker compose up -d
-echo -e "${GREEN}✅ Containers deployed${NC}"
-echo ""
-
 # Step 4: Wait for containers to be healthy
 echo -e "${YELLOW}Step 4: Waiting for containers to be healthy...${NC}"
 sleep 10
