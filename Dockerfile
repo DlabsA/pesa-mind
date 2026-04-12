@@ -1,4 +1,4 @@
-FROM golang:1.26-alpine as builder
+FROM golang:1.26-alpine AS builder
 WORKDIR /app
 COPY . .
 RUN go mod tidy && go build -o pesa-mind ./cmd/api

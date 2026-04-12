@@ -17,21 +17,7 @@ NC='\033[0m' # No Color
 
 # Step 1: Stop current deployment
 echo -e "${YELLOW}Step 1: Stopping current containers...${NC}"
-docker compose down || true
-echo -e "${GREEN}✅ Containers stopped${NC}"
-echo ""
-
-# Step 2: Remove old volumes if needed
-echo -e "${YELLOW}Step 2: Cleaning up (optional)${NC}"
-read -p "Remove old volumes? (y/n) " -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    docker compose down -v
-    echo -e "${GREEN}✅ Volumes removed${NC}"
-else
-    echo -e "${GREEN}✅ Volumes retained${NC}"
-fi
-echo ""
+docker compose down -v && docker compose up --build -d
 
 # Step 3: Rebuild and deploy
 echo -e "${YELLOW}Step 3: Building and deploying new containers...${NC}"
