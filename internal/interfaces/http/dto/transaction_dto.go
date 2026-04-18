@@ -7,6 +7,7 @@ type CreateTransactionRequest struct {
 	Type       string  `json:"type" binding:"required"`
 	Note       string  `json:"note"`
 	Date       int64   `json:"date" binding:"required"` // Unix timestamp
+	UserID     string  `json:"user_id" binding:"required,uuid4"`
 }
 
 type TransactionResponse struct {

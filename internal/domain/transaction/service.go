@@ -1,6 +1,7 @@
 package transaction
 
 import (
+	"pesa-mind/internal/domain/user"
 	"time"
 
 	"pesa-mind/internal/domain/gamification"
@@ -11,16 +12,20 @@ import (
 type Service struct {
 	repo         TransactionRepository
 	Gamification *gamification.Service
+	Profile      *user.Service
 }
 
-func NewService(repo TransactionRepository, gamification *gamification.Service) *Service {
-	return &Service{repo: repo, Gamification: gamification}
+func NewService(repo TransactionRepository, gamification *gamification.Service, profile *user.Service) *Service {
+	return &Service{repo: repo, Gamification: gamification, Profile: profile}
 }
 
-func (s *Service) Create(userID, profileID, categoryID uuid.UUID, amount float64, txType, note string, date int64) (*Transaction, error) {
+func (s *Service) Create(userID, categoryID uuid.UUID, amount float64, txType, note string, date int64) (*Transaction, error) {
+	_, profile, err := s.Profile.GetByID(userID)
+	if err != nil {
+		return nil, err
+	}
 	tx := &Transaction{
-		UserID:     userID,
-		ProfileID:  profileID,
+		Profile:    profile,
 		CategoryID: categoryID,
 		Amount:     amount,
 		Type:       txType,
@@ -47,8 +52,12 @@ func (s *Service) GetByUserID(userID uuid.UUID) ([]*Transaction, error) {
 
 // CreateTransactionFromAutomation allows automation to create a transaction for a user
 func (s *Service) CreateTransactionFromAutomation(userID uuid.UUID, amount float64, categoryID uuid.UUID, description string, occurredAt time.Time) (*Transaction, error) {
+	_, profile, err := s.Profile.GetByID(userID)
+	if err != nil {
+		return nil, err
+	}
 	tx := &Transaction{
-		UserID:      userID,
+		Profile:     profile,
 		Amount:      amount,
 		CategoryID:  categoryID,
 		Description: description,

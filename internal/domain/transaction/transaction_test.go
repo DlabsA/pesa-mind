@@ -34,16 +34,15 @@ func (m *MockTransactionRepo) Delete(id uuid.UUID) error {
 
 func TestCreateTransaction(t *testing.T) {
 	repo := new(MockTransactionRepo)
-	svc := NewService(repo, nil)
-	userID := uuid.New()
-	accountID := uuid.New()
+	svc := NewService(repo, nil, nil)
+	profileID := uuid.New()
 	categoryID := uuid.New()
 	amount := 100.0
 	typeStr := "expense"
 	note := "Test"
 	date := time.Now().Unix()
 	repo.On("Create", mock.AnythingOfType("*transaction.Transaction")).Return(nil)
-	tx, err := svc.Create(userID, accountID, categoryID, amount, typeStr, note, date)
+	tx, err := svc.Create(profileID, categoryID, amount, typeStr, note, date)
 	assert.NoError(t, err)
 	assert.Equal(t, amount, tx.Amount)
 	assert.Equal(t, typeStr, tx.Type)

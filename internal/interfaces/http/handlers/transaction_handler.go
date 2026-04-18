@@ -24,18 +24,16 @@ func (h *TransactionHandler) Create(c *gin.Context) {
 		return
 	}
 	// TODO: Get userID from context (after auth)
-	userID := uuid.MustParse("00000000-0000-0000-0000-000000000000") // placeholder
-	profileID, _ := uuid.Parse(req.ProfileID)
+	userID, _ := uuid.Parse(req.UserID)
 	categoryID, _ := uuid.Parse(req.CategoryID)
-	tx, err := h.Service.Create(userID, profileID, categoryID, req.Amount, req.Type, req.Note, req.Date)
+	tx, err := h.Service.Create(userID, categoryID, req.Amount, req.Type, req.Note, req.Date)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
 	c.JSON(http.StatusCreated, dto.TransactionResponse{
 		ID:         tx.ID.String(),
-		UserID:     tx.UserID.String(),
-		ProfileID:  tx.ProfileID.String(),
+		ProfileID:  tx.Profile.ID.String(),
 		CategoryID: tx.CategoryID.String(),
 		Amount:     tx.Amount,
 		Type:       tx.Type,
@@ -64,8 +62,7 @@ func (h *TransactionHandler) List(c *gin.Context) {
 	for _, tx := range txs {
 		resp = append(resp, dto.TransactionResponse{
 			ID:         tx.ID.String(),
-			UserID:     tx.UserID.String(),
-			ProfileID:  tx.ProfileID.String(),
+			ProfileID:  tx.Profile.ID.String(),
 			CategoryID: tx.CategoryID.String(),
 			Amount:     tx.Amount,
 			Type:       tx.Type,
