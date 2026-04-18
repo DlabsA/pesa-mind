@@ -19,11 +19,7 @@ func NewService(repo TransactionRepository, gamification *gamification.Service, 
 	return &Service{repo: repo, Gamification: gamification, Profile: profile}
 }
 
-func (s *Service) Create(userID, categoryID uuid.UUID, amount float64, txType, note string, date int64) (*Transaction, error) {
-	_, profile, err := s.Profile.GetByID(userID)
-	if err != nil {
-		return nil, err
-	}
+func (s *Service) Create(profile *user.Profile, categoryID uuid.UUID, amount float64, txType, note string, date int64) (*Transaction, error) {
 	tx := &Transaction{
 		Profile:    profile,
 		CategoryID: categoryID,
@@ -36,8 +32,8 @@ func (s *Service) Create(userID, categoryID uuid.UUID, amount float64, txType, n
 		return nil, err
 	}
 	// Auto-award badge for first transaction
-	if s.Gamification != nil {
-		_ = s.Gamification.CheckAndAwardBadges(userID, "first_transaction")
+	if s.Gamification != nil && profile != nil {
+		_ = s.Gamification.CheckAndAwardBadges(profile.UserID, "first_transaction")
 	}
 	return tx, nil
 }
@@ -51,11 +47,7 @@ func (s *Service) GetByUserID(userID uuid.UUID) ([]*Transaction, error) {
 }
 
 // CreateTransactionFromAutomation allows automation to create a transaction for a user
-func (s *Service) CreateTransactionFromAutomation(userID uuid.UUID, amount float64, categoryID uuid.UUID, description string, occurredAt time.Time) (*Transaction, error) {
-	_, profile, err := s.Profile.GetByID(userID)
-	if err != nil {
-		return nil, err
-	}
+func (s *Service) CreateTransactionFromAutomation(profile *user.Profile, amount float64, categoryID uuid.UUID, description string, occurredAt time.Time) (*Transaction, error) {
 	tx := &Transaction{
 		Profile:     profile,
 		Amount:      amount,

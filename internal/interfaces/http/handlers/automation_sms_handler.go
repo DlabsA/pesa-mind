@@ -49,7 +49,29 @@ func (h *AutomationSMSHandler) CreateTransactionFromSMS(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid occurred_at"})
 		return
 	}
-	tx, err := h.TransactionService.CreateTransactionFromAutomation(userID, payload.Amount, categoryID, payload.Description, occurredAt)
+	// Get userID from context
+	userIDStr, ok := c.Get("user_id")
+	if !ok {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+	userID, err = uuid.Parse(userIDStr.(string))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
+		return
+	}
+
+	// Get the user's profile
+	_, profile, err := h.TransactionService.Profile.GetByID(userID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get profile"})
+		return
+	}
+	if profile == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "profile not found"})
+		return
+	}
+	tx, err := h.TransactionService.CreateTransactionFromAutomation(profile, payload.Amount, categoryID, payload.Description, occurredAt)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

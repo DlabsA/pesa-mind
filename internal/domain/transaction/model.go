@@ -11,6 +11,7 @@ import (
 
 type Transaction struct {
 	utils.BaseModel
+	ProfileID   uuid.UUID        `gorm:"type:uuid;not null;index" json:"profile_id"`
 	Profile     *user.Profile    `gorm:"foreignKey:ProfileID" json:"profile,omitempty"`
 	CategoryID  uuid.UUID        `gorm:"type:uuid;not null;index" json:"category_id"`
 	Amount      float64          `gorm:"not null" json:"amount"`
