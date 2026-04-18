@@ -12,8 +12,24 @@ import (
 func TestRepositoryCreateUserAndProfile(t *testing.T) {
 	db, _ := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 
-	db.Exec(`CREATE TABLE users (id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL)`)
-	db.Exec(`CREATE TABLE profiles (id TEXT PRIMARY KEY, user_id TEXT NOT NULL UNIQUE, username TEXT NOT NULL UNIQUE, type TEXT NOT NULL, balance REAL DEFAULT 0.0)`)
+	db.Exec(`CREATE TABLE users (
+		id TEXT PRIMARY KEY,
+		created_at DATETIME,
+		updated_at DATETIME,
+		deleted_at DATETIME,
+		email TEXT NOT NULL UNIQUE,
+		password_hash TEXT NOT NULL
+	)`)
+	db.Exec(`CREATE TABLE profiles (
+		id TEXT PRIMARY KEY,
+		created_at DATETIME,
+		updated_at DATETIME,
+		deleted_at DATETIME,
+		user_id TEXT NOT NULL UNIQUE,
+		username TEXT NOT NULL UNIQUE,
+		type TEXT NOT NULL,
+		balance REAL DEFAULT 0.0
+	)`)
 
 	repo := NewGormUserRepository(db)
 	userID := uuid.New()
@@ -45,8 +61,24 @@ func TestRepositoryCreateUserAndProfile(t *testing.T) {
 func TestRepositoryFindByEmail(t *testing.T) {
 	db, _ := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 
-	db.Exec(`CREATE TABLE users (id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL)`)
-	db.Exec(`CREATE TABLE profiles (id TEXT PRIMARY KEY, user_id TEXT NOT NULL UNIQUE, username TEXT NOT NULL UNIQUE, type TEXT, balance REAL)`)
+	db.Exec(`CREATE TABLE users (
+		id TEXT PRIMARY KEY,
+		created_at DATETIME,
+		updated_at DATETIME,
+		deleted_at DATETIME,
+		email TEXT NOT NULL UNIQUE,
+		password_hash TEXT NOT NULL
+	)`)
+	db.Exec(`CREATE TABLE profiles (
+		id TEXT PRIMARY KEY,
+		created_at DATETIME,
+		updated_at DATETIME,
+		deleted_at DATETIME,
+		user_id TEXT NOT NULL UNIQUE,
+		username TEXT NOT NULL UNIQUE,
+		type TEXT,
+		balance REAL
+	)`)
 
 	userID := uuid.New()
 	user := User{Email: "find@test.com", PasswordHash: "hash"}
@@ -71,13 +103,29 @@ func TestRepositoryFindByEmail(t *testing.T) {
 func TestServiceRegister(t *testing.T) {
 	db, _ := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 
-	db.Exec(`CREATE TABLE users (id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL)`)
-	db.Exec(`CREATE TABLE profiles (id TEXT PRIMARY KEY, user_id TEXT NOT NULL UNIQUE, username TEXT NOT NULL UNIQUE, type TEXT, balance REAL)`)
+	db.Exec(`CREATE TABLE users (
+		id TEXT PRIMARY KEY,
+		created_at DATETIME,
+		updated_at DATETIME,
+		deleted_at DATETIME,
+		email TEXT NOT NULL UNIQUE,
+		password_hash TEXT NOT NULL
+	)`)
+	db.Exec(`CREATE TABLE profiles (
+		id TEXT PRIMARY KEY,
+		created_at DATETIME,
+		updated_at DATETIME,
+		deleted_at DATETIME,
+		user_id TEXT NOT NULL UNIQUE,
+		username TEXT NOT NULL UNIQUE,
+		type TEXT,
+		balance REAL
+	)`)
 
 	repo := NewGormUserRepository(db)
 	service := NewService(repo)
 
-	user, err := service.Register("register@test.com", "hashed123")
+	user, err := service.Register("register@test.com", "hashed123", "")
 	assert.NoError(t, err, "Register should succeed")
 	assert.NotNil(t, user)
 	assert.Equal(t, "register@test.com", user.Email)
@@ -93,14 +141,30 @@ func TestServiceRegister(t *testing.T) {
 func TestServiceGetByEmailWithProfile(t *testing.T) {
 	db, _ := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 
-	db.Exec(`CREATE TABLE users (id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL)`)
-	db.Exec(`CREATE TABLE profiles (id TEXT PRIMARY KEY, user_id TEXT NOT NULL UNIQUE, username TEXT NOT NULL UNIQUE, type TEXT, balance REAL)`)
+	db.Exec(`CREATE TABLE users (
+		id TEXT PRIMARY KEY,
+		created_at DATETIME,
+		updated_at DATETIME,
+		deleted_at DATETIME,
+		email TEXT NOT NULL UNIQUE,
+		password_hash TEXT NOT NULL
+	)`)
+	db.Exec(`CREATE TABLE profiles (
+		id TEXT PRIMARY KEY,
+		created_at DATETIME,
+		updated_at DATETIME,
+		deleted_at DATETIME,
+		user_id TEXT NOT NULL UNIQUE,
+		username TEXT NOT NULL UNIQUE,
+		type TEXT,
+		balance REAL
+	)`)
 
 	repo := NewGormUserRepository(db)
 	service := NewService(repo)
 
 	// Register user
-	service.Register("get@test.com", "hash456")
+	service.Register("get@test.com", "hash456", "")
 
 	// Get by email
 	user, profile, err := service.GetByEmail("get@test.com")

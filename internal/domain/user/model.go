@@ -26,7 +26,7 @@ type Profile struct {
 
 type FinancialChannel struct {
 	utils.BaseModel
-	ProfileID utils.UUID  `gorm:"type:uuid;uniqueIndex;not null" json:"profile_id"`
+	ProfileID string      `gorm:"type:uuid;index" json:"profile_id"`
 	Name      string      `gorm:"not null;default:''" json:"name"`
 	Type      ChannelType `gorm:"column:channel_type;type:varchar(50);not null;default:'Cash'" json:"type"`
 }

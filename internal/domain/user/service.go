@@ -30,6 +30,11 @@ func (s *Service) Register(email, passwordHash string, username string) (*User, 
 		Email:        email,
 		PasswordHash: passwordHash,
 	}
+	// Generate UUID explicitly to ensure it's set
+	if user.ID == uuid.Nil {
+		user.BaseModel.ID = uuid.New()
+	}
+
 	userProfile := UserProfile{
 		user:     user,
 		username: username,
@@ -37,7 +42,16 @@ func (s *Service) Register(email, passwordHash string, username string) (*User, 
 	if err := s.repo.Create(userProfile); err != nil {
 		return nil, err
 	}
-	return user, nil
+
+	// Load the profile to return with user
+	u, p, err := s.repo.FindByID(user.ID)
+	if err != nil {
+		return user, nil // Return user even if profile load fails
+	}
+	if u != nil && p != nil {
+		u.Profile = p
+	}
+	return u, nil
 }
 
 func (s *Service) GetByID(id uuid.UUID) (*User, *Profile, error) {

@@ -147,6 +147,7 @@ func TestGormUserRepositoryUpdate(t *testing.T) {
 		Email:        "update@example.com",
 		PasswordHash: "oldhash",
 	}
+	user.ID = uuid.New()
 	db.Create(user)
 
 	// Update user
@@ -169,6 +170,7 @@ func TestGormUserRepositoryDelete(t *testing.T) {
 		Email:        "delete@example.com",
 		PasswordHash: "hash",
 	}
+	user.ID = uuid.New()
 	db.Create(user)
 
 	// Delete user

@@ -1,0 +1,1267 @@
+openapi: 3.0.3
+info:
+  title: PesaMind API
+  description: Modern offline-first personal finance backend API
+  version: 1.0.0
+  contact:
+    name: PesaMind Team
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:8080/api/v1
+    description: Local Development
+  - url: https://api.pesamind.app/api/v1
+    description: Production
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    ProfileData:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        username:
+          type: string
+        type:
+          type: string
+          enum: [Free, Premium, Enterprise]
+        balance:
+          type: number
+          format: double
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        profile:
+          $ref: '#/components/schemas/ProfileData'
+      required:
+        - id
+        - email
+
+    RegisterRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        username:
+          type: string
+          minLength: 3
+          maxLength: 50
+      required:
+        - email
+        - password
+
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    LoginResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+        profile:
+          $ref: '#/components/schemas/ProfileData'
+      required:
+        - access_token
+        - refresh_token
+
+    RefreshRequest:
+      type: object
+      properties:
+        refresh_token:
+          type: string
+      required:
+        - refresh_token
+
+    RefreshResponse:
+      type: object
+      properties:
+        access_token:
+          type: string
+        refresh_token:
+          type: string
+      required:
+        - access_token
+        - refresh_token
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+        username:
+          type: string
+          minLength: 3
+          maxLength: 50
+
+    ChangePasswordRequest:
+      type: object
+      properties:
+        current_password:
+          type: string
+          minLength: 8
+        new_password:
+          type: string
+          minLength: 8
+      required:
+        - current_password
+        - new_password
+
+    CategoryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        type:
+          type: string
+        parent_id:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+        - id
+        - user_id
+        - name
+        - type
+
+    CreateCategoryRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+        parent_id:
+          type: string
+          format: uuid
+          nullable: true
+      required:
+        - name
+        - type
+
+    TransactionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        profile_id:
+          type: string
+          format: uuid
+        category_id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          format: double
+        type:
+          type: string
+          enum: [income, expense]
+        note:
+          type: string
+        date:
+          type: integer
+          format: int64
+      required:
+        - id
+        - user_id
+        - profile_id
+        - category_id
+        - amount
+        - type
+        - date
+
+    CreateTransactionRequest:
+      type: object
+      properties:
+        profile_id:
+          type: string
+          format: uuid
+        category_id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+          format: double
+        type:
+          type: string
+          enum: [income, expense]
+        note:
+          type: string
+        date:
+          type: integer
+          format: int64
+          description: Unix timestamp
+      required:
+        - profile_id
+        - category_id
+        - amount
+        - type
+        - date
+
+    BudgetResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        amount:
+          type: number
+          format: double
+        period:
+          type: string
+        start_date:
+          type: integer
+          format: int64
+        end_date:
+          type: integer
+          format: int64
+      required:
+        - id
+        - user_id
+        - name
+        - amount
+        - period
+        - start_date
+        - end_date
+
+    CreateBudgetRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        amount:
+          type: number
+          format: double
+        period:
+          type: string
+        start_date:
+          type: integer
+          format: int64
+        end_date:
+          type: integer
+          format: int64
+      required:
+        - name
+        - amount
+        - period
+        - start_date
+        - end_date
+
+    SavingsGoalResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        target:
+          type: number
+          format: double
+        current:
+          type: number
+          format: double
+        deadline:
+          type: integer
+          format: int64
+          nullable: true
+        auto_save:
+          type: boolean
+      required:
+        - id
+        - user_id
+        - title
+        - target
+        - current
+        - auto_save
+
+    CreateSavingsGoalRequest:
+      type: object
+      properties:
+        title:
+          type: string
+        target:
+          type: number
+          format: double
+        deadline:
+          type: integer
+          format: int64
+          nullable: true
+        auto_save:
+          type: boolean
+      required:
+        - title
+        - target
+
+    AnalyticsSnapshotResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        user_id:
+          type: string
+          format: uuid
+        type:
+          type: string
+        data:
+          type: string
+        period:
+          type: string
+        created_at:
+          type: integer
+          format: int64
+        updated_at:
+          type: integer
+          format: int64
+      required:
+        - id
+        - user_id
+        - type
+        - data
+        - period
+        - created_at
+        - updated_at
+
+    CreateAnalyticsSnapshotRequest:
+      type: object
+      properties:
+        type:
+          type: string
+        data:
+          type: string
+        period:
+          type: string
+      required:
+        - type
+        - data
+        - period
+
+paths:
+  /health:
+    get:
+      tags:
+        - Health
+      summary: Health Check
+      operationId: getHealth
+      responses:
+        '200':
+          description: Server is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+
+  /users/register:
+    post:
+      tags:
+        - Users
+      summary: Register a new user
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+      responses:
+        '201':
+          description: User successfully registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: Login user
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshRequest'
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RefreshResponse'
+        '401':
+          description: Invalid refresh token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/me:
+    get:
+      tags:
+        - Users
+      summary: Get current user profile
+      operationId: getCurrentUser
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Current user profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    patch:
+      tags:
+        - Users
+      summary: Update current user
+      operationId: updateCurrentUser
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserRequest'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /users/me/change_password:
+    post:
+      tags:
+        - Users
+      summary: Change user password
+      operationId: changePassword
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+      responses:
+        '200':
+          description: Password changed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Invalid current password
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /categories:
+    post:
+      tags:
+        - Categories
+      summary: Create a new category
+      operationId: createCategory
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCategoryRequest'
+      responses:
+        '201':
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      tags:
+        - Categories
+      summary: List user categories
+      operationId: listCategories
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CategoryResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /transactions:
+    post:
+      tags:
+        - Transactions
+      summary: Create a new transaction
+      operationId: createTransaction
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateTransactionRequest'
+      responses:
+        '201':
+          description: Transaction created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      tags:
+        - Transactions
+      summary: List user transactions
+      operationId: listTransactions
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TransactionResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /budgets:
+    post:
+      tags:
+        - Budgets
+      summary: Create a new budget
+      operationId: createBudget
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBudgetRequest'
+      responses:
+        '201':
+          description: Budget created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BudgetResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      tags:
+        - Budgets
+      summary: List user budgets
+      operationId: listBudgets
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of budgets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/BudgetResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /savingsgoals:
+    post:
+      tags:
+        - Savings Goals
+      summary: Create a new savings goal
+      operationId: createSavingsGoal
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSavingsGoalRequest'
+      responses:
+        '201':
+          description: Savings goal created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SavingsGoalResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      tags:
+        - Savings Goals
+      summary: List user savings goals
+      operationId: listSavingsGoals
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of savings goals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SavingsGoalResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /analytics:
+    post:
+      tags:
+        - Analytics
+      summary: Create analytics snapshot
+      operationId: createAnalyticsSnapshot
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAnalyticsSnapshotRequest'
+      responses:
+        '201':
+          description: Analytics snapshot created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnalyticsSnapshotResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      tags:
+        - Analytics
+      summary: List analytics snapshots
+      operationId: listAnalyticsSnapshots
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of analytics snapshots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AnalyticsSnapshotResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /analytics/income:
+    get:
+      tags:
+        - Analytics
+      summary: Get total income
+      operationId: getTotalIncome
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Total income
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: number
+                    format: double
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /analytics/expenses:
+    get:
+      tags:
+        - Analytics
+      summary: Get total expenses
+      operationId: getTotalExpenses
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Total expenses
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  total:
+                    type: number
+                    format: double
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /analytics/budget-utilization:
+    get:
+      tags:
+        - Analytics
+      summary: Get budget utilization
+      operationId: getBudgetUtilization
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Budget utilization data
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /analytics/savings-progress:
+    get:
+      tags:
+        - Analytics
+      summary: Get savings progress
+      operationId: getSavingsProgress
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Savings progress data
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /automation/sms:
+    post:
+      tags:
+        - Automation
+      summary: Create SMS automation rule
+      operationId: createSMSRule
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: SMS rule created
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      tags:
+        - Automation
+      summary: List SMS automation rules
+      operationId: listSMSRules
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of SMS rules
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /automation/sms/transaction:
+    post:
+      tags:
+        - Automation
+      summary: Create transaction from SMS
+      operationId: createTransactionFromSMS
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '201':
+          description: Transaction created from SMS
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransactionResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /notifications:
+    get:
+      tags:
+        - Notifications
+      summary: List user notifications
+      operationId: listNotifications
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /notifications/{id}/read:
+    post:
+      tags:
+        - Notifications
+      summary: Mark notification as read
+      operationId: markNotificationAsRead
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Notification marked as read
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /notifications/preferences:
+    get:
+      tags:
+        - Notifications
+      summary: Get notification preferences
+      operationId: getNotificationPreferences
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User notification preferences
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - Notifications
+      summary: Set notification preferences
+      operationId: setNotificationPreferences
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: Preferences updated
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /gamification/badges:
+    get:
+      tags:
+        - Gamification
+      summary: List user badges
+      operationId: listBadges
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of badges
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /gamification/streaks:
+    get:
+      tags:
+        - Gamification
+      summary: List user streaks
+      operationId: listStreaks
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of streaks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /gamification/achievements:
+    get:
+      tags:
+        - Gamification
+      summary: List user achievements
+      operationId: listAchievements
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of achievements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /gamification/leaderboard:
+    get:
+      tags:
+        - Gamification
+      summary: Get leaderboard
+      operationId: getLeaderboard
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Leaderboard data
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /gamification/rewards:
+    get:
+      tags:
+        - Gamification
+      summary: List available rewards
+      operationId: listRewards
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of rewards
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /gamification/rewards/{reward_id}/claim:
+    post:
+      tags:
+        - Gamification
+      summary: Claim a reward
+      operationId: claimReward
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: reward_id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Reward claimed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+

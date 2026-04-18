@@ -24,16 +24,8 @@ type loginResp struct {
 	AccessToken  string `json:"access_token"`
 	RefreshToken string `json:"refresh_token"`
 }
-type accountReq struct {
-	Name     string `json:"name"`
-	Type     string `json:"type"`
-	Currency string `json:"currency"`
-}
-type accountResp struct {
-	ID string `json:"id"`
-}
 
-func TestRegisterLoginCreateAccount(t *testing.T) {
+func TestRegisterLoginFlow(t *testing.T) {
 	baseURL := os.Getenv("INTEGRATION_BASE_URL")
 	if baseURL == "" {
 		baseURL = "http://localhost:8080/api/v1"
@@ -67,23 +59,4 @@ func TestRegisterLoginCreateAccount(t *testing.T) {
 	var lresp loginResp
 	json.NewDecoder(resp.Body).Decode(&lresp)
 	assert.NotEmpty(t, lresp.AccessToken)
-	// Create Account
-	acc := accountReq{Name: "Wallet", Type: "cash", Currency: "USD"}
-	accBody, _ := json.Marshal(acc)
-	req, _ := http.NewRequest("POST", baseURL+"/accounts", bytes.NewReader(accBody))
-	req.Header.Set("Authorization", "Bearer "+lresp.AccessToken)
-	client := &http.Client{}
-	resp3, err := client.Do(req)
-	assert.NoError(t, err)
-	if err != nil {
-		t.Fatalf("Failed to POST /accounts: %v", err)
-	}
-	assert.NotNil(t, resp3)
-	if resp3 == nil {
-		t.Fatalf("No response from /accounts")
-	}
-	assert.Equal(t, 201, resp3.StatusCode)
-	var aresp accountResp
-	json.NewDecoder(resp3.Body).Decode(&aresp)
-	assert.NotEmpty(t, aresp.ID)
 }

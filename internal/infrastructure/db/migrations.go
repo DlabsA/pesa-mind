@@ -3,7 +3,6 @@ package db
 import (
 	"log"
 
-	"pesa-mind/internal/domain/account"
 	"pesa-mind/internal/domain/analytics"
 	"pesa-mind/internal/domain/automation"
 	"pesa-mind/internal/domain/budget"
@@ -23,7 +22,6 @@ func AutoMigrateAll(database *gorm.DB) error {
 	if err := database.AutoMigrate(
 		&user.User{},
 		&user.Profile{},
-		&account.Account{},
 		&category.Category{},
 		&transaction.Transaction{},
 	); err != nil {

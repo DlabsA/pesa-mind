@@ -18,10 +18,33 @@ import (
 )
 
 func setupTestRouter(t *testing.T) (*gin.Engine, *gorm.DB) {
+	// SQLite doesn't support uuid_generate_v4, use postgres driver for testing or skip UUID features
 	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
 	assert.NoError(t, err, "failed to create test database")
 
-	db.AutoMigrate(&user.User{}, &user.Profile{})
+	// Manually create tables for SQLite (bypassing uuid issues)
+	err = db.Exec(`
+		CREATE TABLE IF NOT EXISTS users (
+			id TEXT PRIMARY KEY,
+			created_at DATETIME,
+			updated_at DATETIME,
+			deleted_at DATETIME,
+			email TEXT NOT NULL,
+			password_hash TEXT NOT NULL
+		);
+		CREATE TABLE IF NOT EXISTS profiles (
+			id TEXT PRIMARY KEY,
+			created_at DATETIME,
+			updated_at DATETIME,
+			deleted_at DATETIME,
+			user_id TEXT NOT NULL UNIQUE,
+			username TEXT NOT NULL UNIQUE,
+			type TEXT DEFAULT 'Free',
+			balance REAL DEFAULT 0.0,
+			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+		);
+	`).Error
+	assert.NoError(t, err, "failed to create test tables")
 
 	// Initialize services and handlers
 	userRepo := user.NewGormUserRepository(db)

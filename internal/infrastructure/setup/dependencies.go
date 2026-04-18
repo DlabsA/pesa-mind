@@ -2,7 +2,6 @@ package setup
 
 import (
 	"pesa-mind/internal/config"
-	"pesa-mind/internal/domain/account"
 	"pesa-mind/internal/domain/analytics"
 	"pesa-mind/internal/domain/automation"
 	"pesa-mind/internal/domain/budget"
@@ -21,7 +20,6 @@ import (
 type AppDependencies struct {
 	UserHandler          *handlers.UserHandler
 	AuthHandler          *handlers.AuthHandler
-	AccountHandler       *handlers.AccountHandler
 	CategoryHandler      *handlers.CategoryHandler
 	TransactionHandler   *handlers.TransactionHandler
 	BudgetHandler        *handlers.BudgetHandler
@@ -44,10 +42,6 @@ func Initialize(cfg *config.Config, database *gorm.DB) *AppDependencies {
 	categoryRepo := category.NewGormCategoryRepository(database)
 	categoryService := category.NewService(categoryRepo)
 	categoryHandler := handlers.NewCategoryHandler(categoryService)
-
-	accountRepo := account.NewGormAccountRepository(database)
-	accountService := account.NewService(accountRepo)
-	accountHandler := handlers.NewAccountHandler(accountService)
 
 	budgetRepo := budget.NewGormRepository(database)
 	budgetService := budget.NewService(budgetRepo)
@@ -94,7 +88,6 @@ func Initialize(cfg *config.Config, database *gorm.DB) *AppDependencies {
 	return &AppDependencies{
 		UserHandler:          userHandler,
 		AuthHandler:          authHandler,
-		AccountHandler:       accountHandler,
 		CategoryHandler:      categoryHandler,
 		TransactionHandler:   transactionHandler,
 		BudgetHandler:        budgetHandler,

@@ -79,9 +79,6 @@ func registerRoutes(engine *gin.Engine, deps *AppDependencies) {
 		auth := api.Group("")
 		auth.Use(middleware.JWTAuthMiddleware())
 		{
-			// Account routes
-			auth.POST("/accounts", deps.AccountHandler.Create)
-			auth.GET("/accounts", deps.AccountHandler.List)
 
 			// Category routes
 			auth.POST("/categories", deps.CategoryHandler.Create)

@@ -3,8 +3,9 @@ package transaction
 import (
 	"time"
 
-	"github.com/google/uuid"
 	"pesa-mind/internal/domain/gamification"
+
+	"github.com/google/uuid"
 )
 
 type Service struct {
@@ -16,11 +17,10 @@ func NewService(repo TransactionRepository, gamification *gamification.Service) 
 	return &Service{repo: repo, Gamification: gamification}
 }
 
-func (s *Service) Create(userID, accountID, categoryID uuid.UUID, amount float64, txType, note string, date int64) (*Transaction, error) {
+func (s *Service) Create(userID, profileID, categoryID uuid.UUID, amount float64, txType, note string, date int64) (*Transaction, error) {
 	tx := &Transaction{
-		ID:         uuid.New(),
 		UserID:     userID,
-		AccountID:  accountID,
+		ProfileID:  profileID,
 		CategoryID: categoryID,
 		Amount:     amount,
 		Type:       txType,

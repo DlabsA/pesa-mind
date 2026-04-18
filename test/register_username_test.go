@@ -3,6 +3,7 @@ package test
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -22,8 +23,27 @@ func setupRegisterTestRouter(t *testing.T) (*gin.Engine, *gorm.DB) {
 	assert.NoError(t, err)
 
 	// Create tables manually for SQLite compatibility
-	db.Exec(`CREATE TABLE users (id TEXT PRIMARY KEY, email TEXT NOT NULL UNIQUE, password_hash TEXT NOT NULL)`)
-	db.Exec(`CREATE TABLE profiles (id TEXT PRIMARY KEY, user_id TEXT NOT NULL UNIQUE, username TEXT NOT NULL UNIQUE, type TEXT, balance REAL)`)
+	db.Exec(`
+		CREATE TABLE IF NOT EXISTS users (
+			id TEXT PRIMARY KEY,
+			created_at DATETIME,
+			updated_at DATETIME,
+			deleted_at DATETIME,
+			email TEXT NOT NULL UNIQUE,
+			password_hash TEXT NOT NULL
+		)`)
+	db.Exec(`
+		CREATE TABLE IF NOT EXISTS profiles (
+			id TEXT PRIMARY KEY,
+			created_at DATETIME,
+			updated_at DATETIME,
+			deleted_at DATETIME,
+			user_id TEXT NOT NULL UNIQUE,
+			username TEXT NOT NULL UNIQUE,
+			type TEXT DEFAULT 'Free',
+			balance REAL DEFAULT 0.0,
+			FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+		)`)
 
 	userRepo := user.NewGormUserRepository(db)
 	userService := user.NewService(userRepo)
@@ -128,8 +148,6 @@ func TestRegisterInvalidUsernameLength(t *testing.T) {
 }
 
 func TestRegisterUsernameValidation(t *testing.T) {
-	router, _ := setupRegisterTestRouter(t)
-
 	tests := []struct {
 		name        string
 		username    string
@@ -143,10 +161,13 @@ func TestRegisterUsernameValidation(t *testing.T) {
 		{"Empty username", "", true, "Empty means default to email"},
 	}
 
-	for _, tc := range tests {
+	for i, tc := range tests {
 		t.Run(tc.name, func(t *testing.T) {
+			// Create fresh router and database for each subtest
+			router, _ := setupRegisterTestRouter(t)
+
 			req := dto.RegisterRequest{
-				Email:    "test-" + tc.name + "@example.com",
+				Email:    fmt.Sprintf("test%d@example.com", i),
 				Password: "SecurePassword123",
 				Username: tc.username,
 			}

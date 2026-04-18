@@ -44,10 +44,12 @@ func TestRegister(t *testing.T) {
 	svc := NewService(repo)
 	email := "test@example.com"
 	passwordHash := "hashedpass"
+	username := ""
 	repo.On("Create", mock.MatchedBy(func(up UserProfile) bool {
 		return up.user.Email == email && up.username == email
 	})).Return(nil)
-	user, err := svc.Register(email, passwordHash)
+	repo.On("FindByID", mock.Anything).Return(&User{Email: email}, nil, nil)
+	user, err := svc.Register(email, passwordHash, username)
 	assert.NoError(t, err)
 	assert.Equal(t, email, user.Email)
 }
