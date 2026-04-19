@@ -21,7 +21,7 @@ func (r *GormChannelDetailsRepository) Create(channelDetails *ChannelDetails) er
 
 func (r *GormChannelDetailsRepository) FindByID(id uuid.UUID) (*ChannelDetails, error) {
 	var channelDetails ChannelDetails
-	if err := r.DB.Where("id = ?", id).Find(&channelDetails).Error; err != nil {
+	if err := r.DB.Preload("User").Where("id = ?", id).First(&channelDetails).Error; err != nil {
 		return nil, err
 	}
 	return &channelDetails, nil
@@ -29,7 +29,7 @@ func (r *GormChannelDetailsRepository) FindByID(id uuid.UUID) (*ChannelDetails, 
 
 func (r *GormChannelDetailsRepository) FindByUserID(userID uuid.UUID) ([]*ChannelDetails, error) {
 	var channelDetails []*ChannelDetails
-	if err := r.DB.Where("user_id = ?", userID).Find(&channelDetails).Error; err != nil {
+	if err := r.DB.Preload("User").Where("user_id = ?", userID).Find(&channelDetails).Error; err != nil {
 		return nil, err
 	}
 	return channelDetails, nil
@@ -37,7 +37,7 @@ func (r *GormChannelDetailsRepository) FindByUserID(userID uuid.UUID) ([]*Channe
 
 func (r *GormChannelDetailsRepository) FindByChannelType(channelType user.ChannelType) ([]*ChannelDetails, error) {
 	var channelDetails []*ChannelDetails
-	if err := r.DB.Where("channel_type = ?", channelType).Find(&channelDetails).Error; err != nil {
+	if err := r.DB.Preload("User").Where("channel_type = ?", channelType).Find(&channelDetails).Error; err != nil {
 		return nil, err
 	}
 	return channelDetails, nil
@@ -45,7 +45,7 @@ func (r *GormChannelDetailsRepository) FindByChannelType(channelType user.Channe
 
 func (r *GormChannelDetailsRepository) FindByStatus(status bool) ([]*ChannelDetails, error) {
 	var channelDetails []*ChannelDetails
-	if err := r.DB.Where("active = ?", status).Find(&channelDetails).Error; err != nil {
+	if err := r.DB.Preload("User").Where("status = ?", status).Find(&channelDetails).Error; err != nil {
 		return nil, err
 	}
 	return channelDetails, nil

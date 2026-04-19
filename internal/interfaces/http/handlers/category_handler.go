@@ -45,12 +45,16 @@ func (h *CategoryHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
+	channelTypeStr := ""
+	if channelDetails.ChannelType != nil {
+		channelTypeStr = string(*channelDetails.ChannelType)
+	}
 	c.JSON(http.StatusCreated, dto.ChannelDetailsResponse{
 		ID:          channelDetails.ID.String(),
-		UserID:      channelDetails.User.ID.String(),
+		UserID:      channelDetails.UserID.String(),
 		Name:        channelDetails.Name,
 		Description: channelDetails.Description,
-		ChannelType: string(*channelDetails.ChannelType),
+		ChannelType: channelTypeStr,
 		Status:      channelDetails.Status,
 	})
 }
@@ -73,12 +77,22 @@ func (h *CategoryHandler) List(c *gin.Context) {
 	}
 	var resp []dto.ChannelDetailsResponse
 	for _, cd := range channelDetails {
+		userIDStr := ""
+		if cd.User != nil {
+			userIDStr = cd.User.ID.String()
+		} else {
+			userIDStr = cd.UserID.String()
+		}
+		channelTypeStr := ""
+		if cd.ChannelType != nil {
+			channelTypeStr = string(*cd.ChannelType)
+		}
 		resp = append(resp, dto.ChannelDetailsResponse{
 			ID:          cd.ID.String(),
-			UserID:      cd.User.ID.String(),
+			UserID:      userIDStr,
 			Name:        cd.Name,
 			Description: cd.Description,
-			ChannelType: string(*cd.ChannelType),
+			ChannelType: channelTypeStr,
 			Status:      cd.Status,
 		})
 	}
@@ -99,12 +113,22 @@ func (h *CategoryHandler) GetByChannelType(c *gin.Context) {
 	}
 	var resp []dto.ChannelDetailsResponse
 	for _, cd := range channelDetails {
+		userIDStr := ""
+		if cd.User != nil {
+			userIDStr = cd.User.ID.String()
+		} else {
+			userIDStr = cd.UserID.String()
+		}
+		channelTypeStr := ""
+		if cd.ChannelType != nil {
+			channelTypeStr = string(*cd.ChannelType)
+		}
 		resp = append(resp, dto.ChannelDetailsResponse{
 			ID:          cd.ID.String(),
-			UserID:      cd.User.ID.String(),
+			UserID:      userIDStr,
 			Name:        cd.Name,
 			Description: cd.Description,
-			ChannelType: string(*cd.ChannelType),
+			ChannelType: channelTypeStr,
 			Status:      cd.Status,
 		})
 	}
@@ -125,12 +149,22 @@ func (h *CategoryHandler) GetByStatus(c *gin.Context) {
 	}
 	var resp []dto.ChannelDetailsResponse
 	for _, cd := range channelDetails {
+		userIDStr := ""
+		if cd.User != nil {
+			userIDStr = cd.User.ID.String()
+		} else {
+			userIDStr = cd.UserID.String()
+		}
+		channelTypeStr := ""
+		if cd.ChannelType != nil {
+			channelTypeStr = string(*cd.ChannelType)
+		}
 		resp = append(resp, dto.ChannelDetailsResponse{
 			ID:          cd.ID.String(),
-			UserID:      cd.User.ID.String(),
+			UserID:      userIDStr,
 			Name:        cd.Name,
 			Description: cd.Description,
-			ChannelType: string(*cd.ChannelType),
+			ChannelType: channelTypeStr,
 			Status:      cd.Status,
 		})
 	}
