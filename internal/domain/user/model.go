@@ -30,3 +30,13 @@ type FinancialChannel struct {
 	Name      string      `gorm:"not null;default:''" json:"name"`
 	Type      ChannelType `gorm:"column:channel_type;type:varchar(50);not null;default:'Cash'" json:"type"`
 }
+
+// ChannelDetails represents detailed information about a communication channel for a user
+type ChannelDetails struct {
+	utils.BaseModel
+	UserID      utils.UUID  `gorm:"type:uuid;index;not null" json:"user_id"`
+	ChannelType ChannelType `gorm:"type:varchar(50);not null" json:"channel_type"`
+	Value       string      `gorm:"not null" json:"value"` // email, phone number, wallet address, etc.
+	IsActive    bool        `gorm:"not null;default:true" json:"is_active"`
+	IsPrimary   bool        `gorm:"not null;default:false" json:"is_primary"`
+}

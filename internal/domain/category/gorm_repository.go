@@ -1,42 +1,60 @@
 package category
 
 import (
+	"pesa-mind/internal/domain/user"
+
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
-type GormCategoryRepository struct {
+type GormChannelDetailsRepository struct {
 	DB *gorm.DB
 }
 
-func NewGormCategoryRepository(db *gorm.DB) *GormCategoryRepository {
-	return &GormCategoryRepository{DB: db}
+func NewGormChannelDetailsRepository(db *gorm.DB) *GormChannelDetailsRepository {
+	return &GormChannelDetailsRepository{DB: db}
 }
 
-func (r *GormCategoryRepository) Create(category *Category) error {
-	return r.DB.Create(category).Error
+func (r *GormChannelDetailsRepository) Create(channelDetails *ChannelDetails) error {
+	return r.DB.Create(channelDetails).Error
 }
 
-func (r *GormCategoryRepository) FindByID(id uuid.UUID) (*Category, error) {
-	var category Category
-	if err := r.DB.First(&category, "id = ?", id).Error; err != nil {
+func (r *GormChannelDetailsRepository) FindByID(id uuid.UUID) (*ChannelDetails, error) {
+	var channelDetails ChannelDetails
+	if err := r.DB.Where("id = ?", id).Find(&channelDetails).Error; err != nil {
 		return nil, err
 	}
-	return &category, nil
+	return &channelDetails, nil
 }
 
-func (r *GormCategoryRepository) FindByUserID(userID uuid.UUID) ([]*Category, error) {
-	var categories []*Category
-	if err := r.DB.Where("user_id = ?", userID).Find(&categories).Error; err != nil {
+func (r *GormChannelDetailsRepository) FindByUserID(userID uuid.UUID) ([]*ChannelDetails, error) {
+	var channelDetails []*ChannelDetails
+	if err := r.DB.Where("user_id = ?", userID).Find(&channelDetails).Error; err != nil {
 		return nil, err
 	}
-	return categories, nil
+	return channelDetails, nil
 }
 
-func (r *GormCategoryRepository) Update(category *Category) error {
-	return r.DB.Save(category).Error
+func (r *GormChannelDetailsRepository) FindByChannelType(channelType user.ChannelType) ([]*ChannelDetails, error) {
+	var channelDetails []*ChannelDetails
+	if err := r.DB.Where("channel_type = ?", channelType).Find(&channelDetails).Error; err != nil {
+		return nil, err
+	}
+	return channelDetails, nil
 }
 
-func (r *GormCategoryRepository) Delete(id uuid.UUID) error {
-	return r.DB.Delete(&Category{}, "id = ?", id).Error
+func (r *GormChannelDetailsRepository) FindByStatus(status bool) ([]*ChannelDetails, error) {
+	var channelDetails []*ChannelDetails
+	if err := r.DB.Where("active = ?", status).Find(&channelDetails).Error; err != nil {
+		return nil, err
+	}
+	return channelDetails, nil
+}
+
+func (r *GormChannelDetailsRepository) Update(channelDetails *ChannelDetails) error {
+	return r.DB.Save(channelDetails).Error
+}
+
+func (r *GormChannelDetailsRepository) Delete(id uuid.UUID) error {
+	return r.DB.Delete(&ChannelDetails{}, "id = ?", id).Error
 }

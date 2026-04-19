@@ -81,8 +81,12 @@ func registerRoutes(engine *gin.Engine, deps *AppDependencies) {
 		{
 
 			// Category routes
-			auth.POST("/categories", deps.CategoryHandler.Create)
-			auth.GET("/categories", deps.CategoryHandler.List)
+			auth.POST("/categories", deps.ChannelDetailHandler.Create)
+			auth.GET("/categories", deps.ChannelDetailHandler.List)
+			auth.GET("/categories/channel-type", deps.ChannelDetailHandler.GetByChannelType)
+			auth.GET("/categories/status", deps.ChannelDetailHandler.GetByStatus)
+			auth.PUT("/categories/:id", deps.ChannelDetailHandler.Update)
+			auth.DELETE("/categories/:id", deps.ChannelDetailHandler.Delete)
 
 			// Transaction routes
 			auth.POST("/transactions", deps.TransactionHandler.Create)

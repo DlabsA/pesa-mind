@@ -22,7 +22,7 @@ func AutoMigrateAll(database *gorm.DB) error {
 	if err := database.AutoMigrate(
 		&user.User{},
 		&user.Profile{},
-		&category.Category{},
+		&category.ChannelDetails{},
 		&transaction.Transaction{},
 	); err != nil {
 		log.Fatalf("failed to migrate core tables: %v", err)

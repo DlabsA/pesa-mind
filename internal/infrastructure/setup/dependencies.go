@@ -20,7 +20,7 @@ import (
 type AppDependencies struct {
 	UserHandler          *handlers.UserHandler
 	AuthHandler          *handlers.AuthHandler
-	CategoryHandler      *handlers.CategoryHandler
+	ChannelDetailHandler *handlers.CategoryHandler
 	TransactionHandler   *handlers.TransactionHandler
 	BudgetHandler        *handlers.BudgetHandler
 	SavingsGoalHandler   *handlers.SavingsGoalHandler
@@ -39,9 +39,9 @@ func Initialize(cfg *config.Config, database *gorm.DB) *AppDependencies {
 	userService := user.NewService(userRepo)
 	userHandler := handlers.NewUserHandler(userService)
 
-	categoryRepo := category.NewGormCategoryRepository(database)
-	categoryService := category.NewService(categoryRepo)
-	categoryHandler := handlers.NewCategoryHandler(categoryService)
+	channelDetailRepo := category.NewGormChannelDetailsRepository(database)
+	channelDetailService := category.NewService(channelDetailRepo)
+	channelDetailHandler := handlers.NewCategoryHandler(channelDetailService)
 
 	budgetRepo := budget.NewGormRepository(database)
 	budgetService := budget.NewService(budgetRepo)
@@ -88,7 +88,7 @@ func Initialize(cfg *config.Config, database *gorm.DB) *AppDependencies {
 	return &AppDependencies{
 		UserHandler:          userHandler,
 		AuthHandler:          authHandler,
-		CategoryHandler:      categoryHandler,
+		ChannelDetailHandler: channelDetailHandler,
 		TransactionHandler:   transactionHandler,
 		BudgetHandler:        budgetHandler,
 		SavingsGoalHandler:   savingsGoalHandler,

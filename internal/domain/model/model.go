@@ -22,7 +22,7 @@ type User = user.User
 type Profile = user.Profile
 
 // Category models
-type Category = category.Category
+type ChannelDetail = category.ChannelDetails
 
 // Budget models
 type Budget = budget.Budget

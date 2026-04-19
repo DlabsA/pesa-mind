@@ -1,11 +1,17 @@
 package category
 
-import "github.com/google/uuid"
+import (
+	"pesa-mind/internal/domain/user"
 
-type CategoryRepository interface {
-	Create(category *Category) error
-	FindByID(id uuid.UUID) (*Category, error)
-	FindByUserID(userID uuid.UUID) ([]*Category, error)
-	Update(category *Category) error
+	"github.com/google/uuid"
+)
+
+type ChannelDetailsRepository interface {
+	Create(channelDetails *ChannelDetails) error
+	FindByID(id uuid.UUID) (*ChannelDetails, error)
+	FindByUserID(userID uuid.UUID) ([]*ChannelDetails, error)
+	FindByChannelType(channelType user.ChannelType) ([]*ChannelDetails, error)
+	FindByStatus(status bool) ([]*ChannelDetails, error)
+	Update(details *ChannelDetails) error
 	Delete(id uuid.UUID) error
 }
