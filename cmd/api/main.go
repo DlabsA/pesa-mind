@@ -85,7 +85,7 @@ func registerRoutes(engine *gin.Engine, deps *AppDependencies) {
 			auth.GET("/categories", deps.ChannelDetailHandler.List)
 			auth.GET("/categories/channel-type", deps.ChannelDetailHandler.GetByChannelType)
 			auth.GET("/categories/status", deps.ChannelDetailHandler.GetByStatus)
-			auth.PUT("/categories/:id", deps.ChannelDetailHandler.Update)
+			auth.PATCH("/categories/:id", deps.ChannelDetailHandler.Update)
 			auth.DELETE("/categories/:id", deps.ChannelDetailHandler.Delete)
 
 			// Transaction routes
