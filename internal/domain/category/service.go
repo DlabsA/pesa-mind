@@ -16,6 +16,7 @@ func NewService(repo ChannelDetailsRepository) *Service {
 
 func (s *Service) Create(user *user.User, name, description string, channelType *user.ChannelType, status bool) (*ChannelDetails, error) {
 	channelDetails := &ChannelDetails{
+		UserID:      user.ID,
 		User:        user,
 		Name:        name,
 		Description: description,
