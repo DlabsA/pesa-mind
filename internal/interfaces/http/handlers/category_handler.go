@@ -183,13 +183,26 @@ func (h *CategoryHandler) Update(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	channelDetails := &category.ChannelDetails{
-		Name:        req.Name,
-		Description: req.Description,
-		Status:      req.Status,
+
+	// Get existing channel details first
+	existing, err := h.Service.GetByID(id)
+	if err != nil {
+		c.JSON(http.StatusNotFound, gin.H{"error": "channel details not found"})
+		return
 	}
-	channelDetails.ID = id
-	if err := h.Service.Update(channelDetails); err != nil {
+
+	// Only update fields that were provided in the request
+	if req.Name != "" {
+		existing.Name = req.Name
+	}
+	if req.Description != "" {
+		existing.Description = req.Description
+	}
+	if req.Status != nil {
+		existing.Status = *req.Status
+	}
+
+	if err := h.Service.Update(existing); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}

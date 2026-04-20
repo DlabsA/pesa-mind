@@ -22,9 +22,9 @@ type CreateChannelDetailsRequest struct {
 }
 
 type UpdateChannelDetailsRequest struct {
-	Name        string `json:"name" binding:"required"`
-	Description string `json:"description" binding:"required"`
-	Status      bool   `json:"status" binding:"required"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Status      *bool  `json:"status"`
 }
 
 type ChannelDetailsResponse struct {
