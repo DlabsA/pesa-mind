@@ -47,7 +47,7 @@ func (r *GormRepository) CreateMonthlyBudget(mb *MonthlyBudget) error {
 
 func (r *GormRepository) FindMonthlyBudgetByID(ID uuid.UUID) (*MonthlyBudget, error) {
 	var mb MonthlyBudget
-	if err := r.db.First(&mb, "id = ?", ID).Error; err != nil {
+	if err := r.db.Preload("BudgetTransactions").First(&mb, "id = ?", ID).Error; err != nil {
 		return nil, err
 	}
 	return &mb, nil
@@ -55,13 +55,13 @@ func (r *GormRepository) FindMonthlyBudgetByID(ID uuid.UUID) (*MonthlyBudget, er
 
 func (r *GormRepository) FindMonthlyBudgetsByYearlyBudgetID(yearlyBudgetID uuid.UUID) ([]MonthlyBudget, error) {
 	var mbs []MonthlyBudget
-	err := r.db.Where("yearly_budget_id = ?", yearlyBudgetID).Find(&mbs).Error
+	err := r.db.Preload("BudgetTransactions").Where("yearly_budget_id = ?", yearlyBudgetID).Find(&mbs).Error
 	return mbs, err
 }
 
 func (r *GormRepository) FindMonthlyBudgetByUserIDAndMonthYear(userID uuid.UUID, month time.Month, year int64) (*MonthlyBudget, error) {
 	var mb MonthlyBudget
-	if err := r.db.Where("user_id = ? AND month = ? AND year = ?", userID, month, year).First(&mb).Error; err != nil {
+	if err := r.db.Preload("BudgetTransactions").Where("user_id = ? AND month = ? AND year = ?", userID, month, year).First(&mb).Error; err != nil {
 		return nil, err
 	}
 	return &mb, nil
@@ -69,7 +69,7 @@ func (r *GormRepository) FindMonthlyBudgetByUserIDAndMonthYear(userID uuid.UUID,
 
 func (r *GormRepository) FindMonthlyBudgetsByUserID(userID uuid.UUID, limit, offset int) ([]MonthlyBudget, error) {
 	var mbs []MonthlyBudget
-	err := r.db.Where("user_id = ?", userID).Limit(limit).Offset(offset).Find(&mbs).Error
+	err := r.db.Preload("BudgetTransactions").Where("user_id = ?", userID).Limit(limit).Offset(offset).Find(&mbs).Error
 	return mbs, err
 }
 
@@ -87,7 +87,7 @@ func (r *GormRepository) CreateYearlyBudget(yb *YearlyBudget) error {
 
 func (r *GormRepository) FindYearlyBudgetByID(id uuid.UUID) (*YearlyBudget, error) {
 	var yb YearlyBudget
-	if err := r.db.First(&yb, "id = ?", id).Error; err != nil {
+	if err := r.db.Preload("BudgetTransactions").First(&yb, "id = ?", id).Error; err != nil {
 		return nil, err
 	}
 	return &yb, nil
@@ -95,7 +95,7 @@ func (r *GormRepository) FindYearlyBudgetByID(id uuid.UUID) (*YearlyBudget, erro
 
 func (r *GormRepository) FindYearlyBudgetsByUserID(userID uuid.UUID, limit, offset int) ([]YearlyBudget, error) {
 	var ybs []YearlyBudget
-	err := r.db.Where("user_id = ?", userID).Limit(limit).Offset(offset).Find(&ybs).Error
+	err := r.db.Preload("BudgetTransactions").Where("user_id = ?", userID).Limit(limit).Offset(offset).Find(&ybs).Error
 	return ybs, err
 }
 

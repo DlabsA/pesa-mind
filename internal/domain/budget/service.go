@@ -1,6 +1,7 @@
 package budget
 
 import (
+	"pesa-mind/internal/infrastructure/utils"
 	"time"
 
 	"github.com/google/uuid"
@@ -132,11 +133,11 @@ func (s *Service) calculateMonthlyBudgetTotals(mb *MonthlyBudget) {
 	if mb.BudgetTransactions != nil {
 		for _, bt := range mb.BudgetTransactions {
 			switch bt.Type {
-			case "income":
+			case utils.TransactionTypeIncome:
 				totalIncome += uint64(bt.Amount)
-			case "expense":
+			case utils.TransactionTypeExpense:
 				totalExpenditures += uint64(bt.Amount)
-			case "saving":
+			case utils.TransactionTypeSaving:
 				totalSavings += uint64(bt.Amount)
 			}
 		}
@@ -156,11 +157,11 @@ func (s *Service) calculateYearlyBudgetTotals(yb *YearlyBudget) {
 	if yb.BudgetTransactions != nil {
 		for _, bt := range yb.BudgetTransactions {
 			switch bt.Type {
-			case "income":
+			case utils.TransactionTypeIncome:
 				totalIncome += uint64(bt.Amount)
-			case "expense":
+			case utils.TransactionTypeExpense:
 				totalExpenditures += uint64(bt.Amount)
-			case "saving":
+			case utils.TransactionTypeSaving:
 				totalSavings += uint64(bt.Amount)
 			}
 		}

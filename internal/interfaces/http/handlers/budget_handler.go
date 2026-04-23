@@ -1,14 +1,15 @@
 package handlers
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
 	"net/http"
 	"pesa-mind/internal/domain/budget"
 	"pesa-mind/internal/infrastructure/utils"
 	"pesa-mind/internal/interfaces/http/dto"
 	"strconv"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 )
 
 type BudgetHandler struct {
@@ -133,6 +134,7 @@ func (h *BudgetHandler) Update(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{"error": "budget not found"})
 		return
 	}
+	// Partial update - only update provided fields
 	if req.Name != "" {
 		b.Name = req.Name
 	}
@@ -262,8 +264,16 @@ func (h *BudgetHandler) GetMonthlyBudgetByUserIDAndMonthYear(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
 		return
 	}
-	month, _ := strconv.Atoi(c.Query("month"))
-	year, _ := strconv.ParseInt(c.Query("year"), 10, 64)
+	month, err := strconv.Atoi(c.Query("month"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid month"})
+		return
+	}
+	year, err := strconv.ParseInt(c.Query("year"), 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid year"})
+		return
+	}
 
 	if month < 1 || month > 12 {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid month"})
@@ -315,7 +325,7 @@ func (h *BudgetHandler) UpdateMonthlyBudget(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid budget id"})
 		return
 	}
-	var req dto.CreateMonthlyBudgetRequest
+	var req dto.UpdateMonthlyBudgetRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -331,16 +341,26 @@ func (h *BudgetHandler) UpdateMonthlyBudget(c *gin.Context) {
 		return
 	}
 
-	// Update transactions
-	transactions := make([]budget.BudgetTransaction, len(req.Transactions))
-	for i, bt := range req.Transactions {
-		transactions[i] = budget.BudgetTransaction{
-			Name:   bt.Name,
-			Amount: bt.Amount,
-			Type:   utils.TransactionType(bt.Type),
-		}
+	// Partial update - only update provided fields
+	if req.Month != nil && *req.Month >= 1 && *req.Month <= 12 {
+		mb.Month = time.Month(*req.Month)
 	}
-	mb.BudgetTransactions = transactions
+	if req.Year != nil {
+		mb.Year = *req.Year
+	}
+
+	// Update transactions if provided
+	if len(req.Transactions) > 0 {
+		transactions := make([]budget.BudgetTransaction, len(req.Transactions))
+		for i, bt := range req.Transactions {
+			transactions[i] = budget.BudgetTransaction{
+				Name:   bt.Name,
+				Amount: bt.Amount,
+				Type:   utils.TransactionType(bt.Type),
+			}
+		}
+		mb.BudgetTransactions = transactions
+	}
 
 	if err := h.Service.UpdateMonthlyBudget(mb); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -429,8 +449,16 @@ func (h *BudgetHandler) ListYearlyBudgets(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
 		return
 	}
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
-	offset, _ := strconv.Atoi(c.DefaultQuery("offset", "0"))
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "20"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid limit"})
+		return
+	}
+	offset, err := strconv.Atoi(c.DefaultQuery("offset", "0"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid offset"})
+		return
+	}
 
 	ybs, err := h.Service.GetYearlyBudgetsByUserID(userID, limit, offset)
 	if err != nil {
@@ -451,7 +479,7 @@ func (h *BudgetHandler) UpdateYearlyBudget(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid budget id"})
 		return
 	}
-	var req dto.CreateYearlyBudgetRequest
+	var req dto.UpdateYearlyBudgetRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -467,16 +495,23 @@ func (h *BudgetHandler) UpdateYearlyBudget(c *gin.Context) {
 		return
 	}
 
-	// Update transactions
-	transactions := make([]budget.BudgetTransaction, len(req.Transactions))
-	for i, bt := range req.Transactions {
-		transactions[i] = budget.BudgetTransaction{
-			Name:   bt.Name,
-			Amount: bt.Amount,
-			Type:   utils.TransactionType(bt.Type),
-		}
+	// Partial update - only update provided fields
+	if req.Year != nil {
+		yb.Year = *req.Year
 	}
-	yb.BudgetTransactions = transactions
+
+	// Update transactions if provided
+	if len(req.Transactions) > 0 {
+		transactions := make([]budget.BudgetTransaction, len(req.Transactions))
+		for i, bt := range req.Transactions {
+			transactions[i] = budget.BudgetTransaction{
+				Name:   bt.Name,
+				Amount: bt.Amount,
+				Type:   utils.TransactionType(bt.Type),
+			}
+		}
+		yb.BudgetTransactions = transactions
+	}
 
 	if err := h.Service.UpdateYearlyBudget(yb); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

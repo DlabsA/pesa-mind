@@ -49,7 +49,7 @@ type YearlyBudget struct {
 	utils.BaseModel
 	UserID             uuid.UUID           `gorm:"type:uuid;not null;index" json:"user_id"`
 	User               *user.User          `gorm:"foreignKey:UserID" json:"user"`
-	Year               int64               `gorm:"not null;uniqueIndex:idx_user_year",m json:"year"`
+	Year               int64               `gorm:"not null;uniqueIndex:idx_user_year" json:"year"`
 	MonthlyBudget      []MonthlyBudget     `gorm:"foreignKey:YearlyBudgetID" json:"monthly_budgets"`
 	BudgetTransactions []BudgetTransaction `gorm:"foreignKey:YearlyBudgetID" json:"budget_transactions"`
 	TotalExpenditures  uint64              `gorm:"not null" json:"total_expenditures"`

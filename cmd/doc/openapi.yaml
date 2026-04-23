@@ -90,6 +90,34 @@ components:
           type: integer
           format: int64
     
+    UpdateMonthlyBudgetRequest:
+      type: object
+      properties:
+        month:
+          type: integer
+          minimum: 1
+          maximum: 12
+        year:
+          type: integer
+          format: int64
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/BudgetTransactionRequest"
+      description: "Partial update - provide only the fields you want to update"
+    
+    UpdateYearlyBudgetRequest:
+      type: object
+      properties:
+        year:
+          type: integer
+          format: int64
+        transactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/BudgetTransactionRequest"
+      description: "Partial update - provide only the fields you want to update"
+    
     # Budget Transaction Schemas
     BudgetTransactionRequest:
       type: object
@@ -1009,7 +1037,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateMonthlyBudgetRequest"
+              $ref: "#/components/schemas/UpdateMonthlyBudgetRequest"
       responses:
         "200":
           description: OK
@@ -1293,7 +1321,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateYearlyBudgetRequest"
+              $ref: "#/components/schemas/UpdateYearlyBudgetRequest"
       responses:
         "200":
           description: OK

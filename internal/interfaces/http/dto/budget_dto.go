@@ -84,3 +84,16 @@ type UpdateBudgetRequest struct {
 	StartDate int64   `json:"start_date"`
 	EndDate   int64   `json:"end_date"`
 }
+
+// UpdateMonthlyBudgetRequest allows partial updates
+type UpdateMonthlyBudgetRequest struct {
+	Month        *int                       `json:"month"`
+	Year         *int64                     `json:"year"`
+	Transactions []BudgetTransactionRequest `json:"transactions"`
+}
+
+// UpdateYearlyBudgetRequest allows partial updates
+type UpdateYearlyBudgetRequest struct {
+	Year         *int64                     `json:"year"`
+	Transactions []BudgetTransactionRequest `json:"transactions"`
+}
