@@ -14,3 +14,11 @@ type BaseModel struct {
 }
 
 type UUID = uuid.UUID
+
+type TransactionType string
+
+const (
+	TransactionTypeIncome  TransactionType = "income"
+	TransactionTypeExpense TransactionType = "expense"
+	TransactionTypeSaving  TransactionType = "saving"
+)

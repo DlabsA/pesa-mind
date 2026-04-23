@@ -1194,8 +1194,8 @@
           "categories"
         ]
       },
-      "put": {
-        "operationId": "put_categories_by_id",
+      "patch": {
+        "operationId": "patch_categories_by_id",
         "parameters": [
           {
             "in": "path",
@@ -1261,7 +1261,7 @@
             "description": "Internal Server Error"
           }
         },
-        "summary": "Replace Categories",
+        "summary": "Update Categories",
         "tags": [
           "categories"
         ]
