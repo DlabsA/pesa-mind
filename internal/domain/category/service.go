@@ -14,12 +14,13 @@ func NewService(repo ChannelDetailsRepository) *Service {
 	return &Service{repo: repo}
 }
 
-func (s *Service) Create(user *user.User, name, description string, channelType *user.ChannelType, status bool) (*ChannelDetails, error) {
+func (s *Service) Create(user *user.User, name, description, ChannelDesc string, channelType *user.ChannelType, status bool) (*ChannelDetails, error) {
 	channelDetails := &ChannelDetails{
 		UserID:      user.ID,
 		User:        user,
 		Name:        name,
 		Description: description,
+		ChannelDesc: ChannelDesc,
 		ChannelType: channelType,
 		Status:      status,
 	}

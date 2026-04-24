@@ -40,7 +40,7 @@ func (h *CategoryHandler) Create(c *gin.Context) {
 
 	channelType := userDomain.ChannelType(req.ChannelType)
 
-	channelDetails, err := h.Service.Create(user, req.Name, req.Description, &channelType, req.Status)
+	channelDetails, err := h.Service.Create(user, req.Name, req.Description, req.ChannelDesc, &channelType, req.Status)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -55,6 +55,7 @@ func (h *CategoryHandler) Create(c *gin.Context) {
 		Name:        channelDetails.Name,
 		Description: channelDetails.Description,
 		ChannelType: channelTypeStr,
+		ChannelDesc: channelDetails.ChannelDesc,
 		Status:      channelDetails.Status,
 	})
 }

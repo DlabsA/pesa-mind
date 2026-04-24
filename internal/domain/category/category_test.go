@@ -72,10 +72,11 @@ func TestCreateChannelDetails(t *testing.T) {
 	name := "Test Channel"
 	description := "Test Description"
 	channelType := user.ChannelTypeCash
+	channelDesc := "Airtel Money"
 
 	repo.On("Create", mock.AnythingOfType("*category.ChannelDetails")).Return(nil)
 
-	result, err := svc.Create(testUser, name, description, &channelType, true)
+	result, err := svc.Create(testUser, name, description, channelDesc, &channelType, true)
 
 	assert.NoError(t, err)
 	assert.NotNil(t, result)
@@ -95,6 +96,7 @@ func TestGetByIDChannelDetails(t *testing.T) {
 	testChannelDetails := &ChannelDetails{
 		Name:        "Test Channel",
 		Description: "Test Description",
+		ChannelDesc: "Airtel Money",
 		ChannelType: &channelType,
 		Status:      true,
 	}
@@ -123,12 +125,14 @@ func TestGetByUserIDChannelDetails(t *testing.T) {
 			Name:        "Channel 1",
 			Description: "Description 1",
 			ChannelType: &channelType,
+			ChannelDesc: "Airtel Money",
 			Status:      true,
 		},
 		{
 			Name:        "Channel 2",
 			Description: "Description 2",
 			ChannelType: &channelType,
+			ChannelDesc: "Airtel Money",
 			Status:      false,
 		},
 	}
@@ -156,6 +160,7 @@ func TestGetByChannelTypeChannelDetails(t *testing.T) {
 			Name:        "Cash Channel",
 			Description: "Test Cash",
 			ChannelType: &channelType,
+			ChannelDesc: "Airtel Money",
 			Status:      true,
 		},
 	}
@@ -182,6 +187,7 @@ func TestGetByStatusChannelDetails(t *testing.T) {
 			Name:        "Active Channel",
 			Description: "Active",
 			ChannelType: &channelType,
+			ChannelDesc: "Airtel Money",
 			Status:      true,
 		},
 	}
@@ -209,6 +215,7 @@ func TestUpdateChannelDetails(t *testing.T) {
 		Name:        "Updated Channel",
 		Description: "Updated Description",
 		ChannelType: &channelType,
+		ChannelDesc: "Airtel Money",
 		Status:      false,
 	}
 	channelDetails.ID = id
