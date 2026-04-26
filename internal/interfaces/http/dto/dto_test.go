@@ -46,7 +46,7 @@ func TestCreateCategoryRequestJSON(t *testing.T) {
 }
 
 func TestTransactionResponseJSON(t *testing.T) {
-	resp := TransactionResponse{ID: "id", UserID: "uid", ProfileID: "pid", CategoryID: "cid", Amount: 10.5, Type: "expense", Note: "Lunch", Date: 1234567890}
+	resp := TransactionResponse{ID: "id", Username: "uid", ChannelDetailsName: "cid", Amount: 10.5, Type: "expense", Note: "Lunch"}
 	_, err := json.Marshal(resp)
 	if err != nil {
 		t.Errorf("Failed to marshal TransactionResponse: %v", err)
@@ -54,13 +54,13 @@ func TestTransactionResponseJSON(t *testing.T) {
 }
 
 func TestCreateTransactionRequestJSON(t *testing.T) {
-	jsonStr := `{"profile_id":"pid","category_id":"cid","amount":10.5,"type":"expense","note":"Lunch","date":1234567890}`
+	jsonStr := `{"user_id":"pid","channel_details_id":"cid","amount":10.5,"type":"expense","note":"Lunch"}`
 	var req CreateTransactionRequest
 	err := json.Unmarshal([]byte(jsonStr), &req)
 	if err != nil {
 		t.Errorf("Failed to unmarshal CreateTransactionRequest: %v", err)
 	}
-	if req.ProfileID != "pid" || req.CategoryID != "cid" || req.Amount != 10.5 || req.Type != "expense" || req.Note != "Lunch" || req.Date != 1234567890 {
+	if req.UserID != "pid" || req.ChannelDetailsID != "cid" || req.Amount != 10.5 || req.Type != "expense" || req.Note != "Lunch" {
 		t.Errorf("Unexpected values: %+v", req)
 	}
 }

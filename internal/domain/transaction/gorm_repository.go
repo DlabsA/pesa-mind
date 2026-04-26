@@ -28,10 +28,7 @@ func (r *GormTransactionRepository) FindByID(id uuid.UUID) (*Transaction, error)
 func (r *GormTransactionRepository) FindByUserID(userID uuid.UUID) ([]*Transaction, error) {
 	var txs []*Transaction
 	// Join with profiles table to filter by user_id
-	if err := r.DB.
-		Joins("JOIN profiles ON transactions.profile_id = profiles.id").
-		Where("profiles.user_id = ?", userID).
-		Find(&txs).Error; err != nil {
+	if err := r.DB.Preload("User").Preload("ChannelDetails").Where("user_id = ?", userID).Find(&txs).Error; err != nil {
 		return nil, err
 	}
 	return txs, nil

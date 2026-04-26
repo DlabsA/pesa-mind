@@ -54,7 +54,7 @@ func Initialize(cfg *config.Config, database *gorm.DB) *AppDependencies {
 
 	// Initialize domains that depend on gamification
 	transactionRepo := transaction.NewGormTransactionRepository(database)
-	transactionService := transaction.NewService(transactionRepo, gamificationService, userService)
+	transactionService := transaction.NewService(transactionRepo, gamificationService, userService, channelDetailService)
 	transactionHandler := handlers.NewTransactionHandler(transactionService)
 
 	savingsGoalRepo := savingsgoal.NewGormRepository(database)

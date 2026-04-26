@@ -54,14 +54,14 @@ func (s *Service) List(userID uuid.UUID, limit, offset int) ([]AnalyticsSnapshot
 }
 
 // TotalIncome returns the sum of all income transactions for a user in a date range
-func (s *AnalyticsService) TotalIncome(userID uuid.UUID, from, to time.Time) (float64, error) {
+func (s *AnalyticsService) TotalIncome(userID uuid.UUID) (float64, error) {
 	txs, err := s.TransactionRepo.FindByUserID(userID)
 	if err != nil {
 		return 0, err
 	}
 	total := 0.0
 	for _, tx := range txs {
-		if tx.Type == "income" && !tx.Date.Before(from) && !tx.Date.After(to) {
+		if tx.Type == "income" {
 			total += tx.Amount
 		}
 	}
@@ -69,14 +69,14 @@ func (s *AnalyticsService) TotalIncome(userID uuid.UUID, from, to time.Time) (fl
 }
 
 // TotalExpenses returns the sum of all expense transactions for a user in a date range
-func (s *AnalyticsService) TotalExpenses(userID uuid.UUID, from, to time.Time) (float64, error) {
+func (s *AnalyticsService) TotalExpenses(userID uuid.UUID) (float64, error) {
 	txs, err := s.TransactionRepo.FindByUserID(userID)
 	if err != nil {
 		return 0, err
 	}
 	total := 0.0
 	for _, tx := range txs {
-		if tx.Type == "expense" && !tx.Date.Before(from) && !tx.Date.After(to) {
+		if tx.Type == "expense" {
 			total += tx.Amount
 		}
 	}
@@ -100,7 +100,7 @@ func (s *AnalyticsService) BudgetUtilization(userID uuid.UUID, now time.Time) (f
 		return 0, err
 	}
 	for _, tx := range txs {
-		if tx.Type == "expense" && tx.Date.After(now.AddDate(0, -1, 0)) && tx.Date.Before(now) {
+		if tx.Type == "expense" {
 			totalSpent += tx.Amount
 		}
 	}

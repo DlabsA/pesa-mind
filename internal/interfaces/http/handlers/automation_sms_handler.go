@@ -3,7 +3,6 @@ package handlers
 import (
 	"net/http"
 	"pesa-mind/internal/domain/transaction"
-	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -20,11 +19,12 @@ func NewAutomationSMSHandler(ts *transaction.Service) *AutomationSMSHandler {
 // SMSPayload is the expected payload from the mobile app for an SMS transaction
 // Example: {"user_id": "...", "amount": 1000, "category_id": "...", "description": "Airtime purchase", "occurred_at": "2026-03-25T12:34:56Z"}
 type SMSPayload struct {
-	UserID      string  `json:"user_id" binding:"required,uuid4"`
-	Amount      float64 `json:"amount" binding:"required"`
-	CategoryID  string  `json:"category_id" binding:"required,uuid4"`
-	Description string  `json:"description" binding:"required"`
-	OccurredAt  string  `json:"occurred_at" binding:"required,datetime"`
+	UserID           string  `json:"user_id" binding:"required,uuid4"`
+	Amount           float64 `json:"amount" binding:"required"`
+	ChannelDetailsID string  `json:"channel_details_id" binding:"required,uuid4"`
+	Type             string  `json:"type" binding:"required"`
+	Note             string  `json:"note"`
+	Description      string  `json:"description" binding:"required"`
 }
 
 // POST /api/v1/automation/sms/transaction
@@ -39,12 +39,16 @@ func (h *AutomationSMSHandler) CreateTransactionFromSMS(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user_id"})
 		return
 	}
-	categoryID, err := uuid.Parse(payload.CategoryID)
+	ChannelDetailsID, _ := uuid.Parse(payload.ChannelDetailsID)
+	channel, err := h.TransactionService.Category.GetByID(ChannelDetailsID)
 	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid category_id"})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get channel details"})
 		return
 	}
-	occurredAt, err := time.Parse(time.RFC3339, payload.OccurredAt)
+	if channel == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "channel details not found"})
+		return
+	}
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid occurred_at"})
 		return
@@ -62,16 +66,27 @@ func (h *AutomationSMSHandler) CreateTransactionFromSMS(c *gin.Context) {
 	}
 
 	// Get the user's profile
-	_, profile, err := h.TransactionService.Profile.GetByID(userID)
+	user, _, err := h.TransactionService.User.GetByID(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get profile"})
 		return
 	}
-	if profile == nil {
+	if user == nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "profile not found"})
 		return
 	}
-	tx, err := h.TransactionService.CreateTransactionFromAutomation(profile, payload.Amount, categoryID, payload.Description, occurredAt)
+	ChannelDetailsID, _ = uuid.Parse(payload.ChannelDetailsID)
+	channel, err = h.TransactionService.Category.GetByID(ChannelDetailsID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get channel details"})
+		return
+	}
+	if channel == nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "channel details not found"})
+		return
+	}
+
+	tx, err := h.TransactionService.CreateTransactionFromAutomation(user, payload.Amount, channel, payload.Description)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

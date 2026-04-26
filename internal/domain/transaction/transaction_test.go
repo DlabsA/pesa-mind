@@ -2,7 +2,6 @@ package transaction
 
 import (
 	"testing"
-	"time"
 
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -34,14 +33,12 @@ func (m *MockTransactionRepo) Delete(id uuid.UUID) error {
 
 func TestCreateTransaction(t *testing.T) {
 	repo := new(MockTransactionRepo)
-	svc := NewService(repo, nil, nil)
-	categoryID := uuid.New()
+	svc := NewService(repo, nil, nil, nil)
 	amount := 100.0
 	typeStr := "expense"
 	note := "Test"
-	date := time.Now().Unix()
 	repo.On("Create", mock.AnythingOfType("*transaction.Transaction")).Return(nil)
-	tx, err := svc.Create(nil, categoryID, amount, typeStr, note, date)
+	tx, err := svc.Create(nil, nil, amount, typeStr, note)
 	assert.NoError(t, err)
 	assert.Equal(t, amount, tx.Amount)
 	assert.Equal(t, typeStr, tx.Type)

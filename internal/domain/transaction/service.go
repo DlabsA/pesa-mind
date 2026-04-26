@@ -1,10 +1,9 @@
 package transaction
 
 import (
-	"pesa-mind/internal/domain/user"
-	"time"
-
+	"pesa-mind/internal/domain/category"
 	"pesa-mind/internal/domain/gamification"
+	"pesa-mind/internal/domain/user"
 
 	"github.com/google/uuid"
 )
@@ -12,28 +11,28 @@ import (
 type Service struct {
 	repo         TransactionRepository
 	Gamification *gamification.Service
-	Profile      *user.Service
+	User         *user.Service
+	Category     *category.Service
 }
 
-func NewService(repo TransactionRepository, gamification *gamification.Service, profile *user.Service) *Service {
-	return &Service{repo: repo, Gamification: gamification, Profile: profile}
+func NewService(repo TransactionRepository, gamification *gamification.Service, user *user.Service, category *category.Service) *Service {
+	return &Service{repo: repo, Gamification: gamification, User: user, Category: category}
 }
 
-func (s *Service) Create(profile *user.Profile, categoryID uuid.UUID, amount float64, txType, note string, date int64) (*Transaction, error) {
+func (s *Service) Create(user *user.User, channelDetails *category.ChannelDetails, amount float64, txType, note string) (*Transaction, error) {
 	tx := &Transaction{
-		Profile:    profile,
-		CategoryID: categoryID,
-		Amount:     amount,
-		Type:       txType,
-		Note:       note,
-		Date:       time.Unix(date, 0),
+		User:           user,
+		ChannelDetails: channelDetails,
+		Amount:         amount,
+		Type:           txType,
+		Note:           note,
 	}
 	if err := s.repo.Create(tx); err != nil {
 		return nil, err
 	}
 	// Auto-award badge for first transaction
-	if s.Gamification != nil && profile != nil {
-		_ = s.Gamification.CheckAndAwardBadges(profile.UserID, "first_transaction")
+	if s.Gamification != nil && user != nil {
+		_ = s.Gamification.CheckAndAwardBadges(user.ID, "first_transaction")
 	}
 	return tx, nil
 }
@@ -47,13 +46,14 @@ func (s *Service) GetByUserID(userID uuid.UUID) ([]*Transaction, error) {
 }
 
 // CreateTransactionFromAutomation allows automation to create a transaction for a user
-func (s *Service) CreateTransactionFromAutomation(profile *user.Profile, amount float64, categoryID uuid.UUID, description string, occurredAt time.Time) (*Transaction, error) {
+func (s *Service) CreateTransactionFromAutomation(user *user.User, amount float64, channelDetails *category.ChannelDetails, description string) (*Transaction, error) {
 	tx := &Transaction{
-		Profile:     profile,
-		Amount:      amount,
-		CategoryID:  categoryID,
-		Description: description,
-		OccurredAt:  &occurredAt,
+		UserID:           user.ID,
+		User:             user,
+		Amount:           amount,
+		ChannelDetailsID: channelDetails.ID,
+		ChannelDetails:   channelDetails,
+		Description:      description,
 	}
 	if err := s.repo.Create(tx); err != nil {
 		return nil, err
