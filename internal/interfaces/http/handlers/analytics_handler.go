@@ -96,10 +96,7 @@ func (h *AnalyticsHandler) TotalIncome(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
 		return
 	}
-	fromStr := c.DefaultQuery("from", "")
-	toStr := c.DefaultQuery("to", "")
-	from, to := parseDateRange(fromStr, toStr)
-	amount, err := h.RealtimeService.TotalIncome(userID, from, to)
+	amount, err := h.RealtimeService.TotalIncome(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -118,10 +115,7 @@ func (h *AnalyticsHandler) TotalExpenses(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid user id"})
 		return
 	}
-	fromStr := c.DefaultQuery("from", "")
-	toStr := c.DefaultQuery("to", "")
-	from, to := parseDateRange(fromStr, toStr)
-	amount, err := h.RealtimeService.TotalExpenses(userID, from, to)
+	amount, err := h.RealtimeService.TotalExpenses(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -166,27 +160,4 @@ func (h *AnalyticsHandler) SavingsProgress(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{"savings_progress": progress})
-}
-
-func parseDateRange(fromStr, toStr string) (time.Time, time.Time) {
-	layout := "2006-01-02"
-	var from, to time.Time
-	var err error
-	if fromStr != "" {
-		from, err = time.Parse(layout, fromStr)
-		if err != nil {
-			from = time.Now().AddDate(0, -1, 0)
-		}
-	} else {
-		from = time.Now().AddDate(0, -1, 0)
-	}
-	if toStr != "" {
-		to, err = time.Parse(layout, toStr)
-		if err != nil {
-			to = time.Now()
-		}
-	} else {
-		to = time.Now()
-	}
-	return from, to
 }

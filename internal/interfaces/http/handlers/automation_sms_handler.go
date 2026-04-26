@@ -49,10 +49,6 @@ func (h *AutomationSMSHandler) CreateTransactionFromSMS(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "channel details not found"})
 		return
 	}
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid occurred_at"})
-		return
-	}
 	// Get userID from context
 	userIDStr, ok := c.Get("user_id")
 	if !ok {
