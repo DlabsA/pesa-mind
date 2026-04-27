@@ -37,7 +37,7 @@ func (h *TransactionHandler) Create(c *gin.Context) {
 	}
 
 	// Get the user's profile
-	user, _, err := h.Service.User.GetByID(userID)
+	user, profile, err := h.Service.User.GetByID(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get profile"})
 		return
@@ -46,6 +46,7 @@ func (h *TransactionHandler) Create(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "profile not found"})
 		return
 	}
+	user.Profile = profile
 	if user.Profile == nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "user profile data missing"})
 		return
