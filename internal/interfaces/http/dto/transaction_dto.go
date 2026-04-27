@@ -5,7 +5,6 @@ type CreateTransactionRequest struct {
 	Amount           float64 `json:"amount" binding:"required"`
 	Type             string  `json:"type" binding:"required"`
 	Note             string  `json:"note"`
-	UserID           string  `json:"user_id" binding:"required,uuid4"`
 }
 
 type TransactionResponse struct {

@@ -91,6 +91,7 @@ func registerRoutes(engine *gin.Engine, deps *AppDependencies) {
 			// Transaction routes
 			auth.POST("/transactions", deps.TransactionHandler.Create)
 			auth.GET("/transactions", deps.TransactionHandler.List)
+			auth.GET("/transactions/by-type", deps.TransactionHandler.ListByType)
 
 			// Budget routes
 			auth.POST("/budgets", deps.BudgetHandler.Create)

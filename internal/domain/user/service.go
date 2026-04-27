@@ -55,11 +55,27 @@ func (s *Service) Register(email, passwordHash string, username string) (*User, 
 }
 
 func (s *Service) GetByID(id uuid.UUID) (*User, *Profile, error) {
-	return s.repo.FindByID(id)
+	u, p, err := s.repo.FindByID(id)
+	if err != nil {
+		return nil, nil, err
+	}
+	// Populate Profile field on User for easy access
+	if u != nil && p != nil {
+		u.Profile = p
+	}
+	return u, p, nil
 }
 
 func (s *Service) GetByEmail(email string) (*User, *Profile, error) {
-	return s.repo.FindByEmail(email)
+	u, p, err := s.repo.FindByEmail(email)
+	if err != nil {
+		return nil, nil, err
+	}
+	// Populate Profile field on User for easy access
+	if u != nil && p != nil {
+		u.Profile = p
+	}
+	return u, p, nil
 }
 
 // Update updates user's email and/or profile username. It returns the updated

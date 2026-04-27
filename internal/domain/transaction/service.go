@@ -21,19 +21,21 @@ func NewService(repo TransactionRepository, gamification *gamification.Service, 
 
 func (s *Service) Create(user *user.User, channelDetails *category.ChannelDetails, amount float64, txType, note string) (*Transaction, error) {
 	tx := &Transaction{
-		User:           user,
-		ChannelDetails: channelDetails,
-		Amount:         amount,
-		Type:           txType,
-		Note:           note,
+		UserID:           user.ID,
+		User:             user,
+		ChannelDetailsID: channelDetails.ID,
+		ChannelDetails:   channelDetails,
+		Amount:           amount,
+		Type:             txType,
+		Note:             note,
 	}
 	if err := s.repo.Create(tx); err != nil {
 		return nil, err
 	}
 	// Auto-award badge for first transaction
-	if s.Gamification != nil && user != nil {
-		_ = s.Gamification.CheckAndAwardBadges(user.ID, "first_transaction")
-	}
+	//if s.Gamification != nil && user != nil {
+	//	_ = s.Gamification.CheckAndAwardBadges(user.ID, "first_transaction")
+	//}
 	return tx, nil
 }
 
@@ -43,6 +45,10 @@ func (s *Service) GetByID(id uuid.UUID) (*Transaction, error) {
 
 func (s *Service) GetByUserID(userID uuid.UUID) ([]*Transaction, error) {
 	return s.repo.FindByUserID(userID)
+}
+
+func (s *Service) GetByUserIDAndType(userID uuid.UUID, txType string) ([]*Transaction, error) {
+	return s.repo.FindByUserIDAndType(userID, txType)
 }
 
 // CreateTransactionFromAutomation allows automation to create a transaction for a user

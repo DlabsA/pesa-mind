@@ -34,6 +34,14 @@ func (r *GormTransactionRepository) FindByUserID(userID uuid.UUID) ([]*Transacti
 	return txs, nil
 }
 
+func (r *GormTransactionRepository) FindByUserIDAndType(userID uuid.UUID, txType string) ([]*Transaction, error) {
+	var txs []*Transaction
+	if err := r.DB.Preload("User").Preload("ChannelDetails").Where("user_id = ? AND type = ?", userID, txType).Find(&txs).Error; err != nil {
+		return nil, err
+	}
+	return txs, nil
+}
+
 func (r *GormTransactionRepository) Update(tx *Transaction) error {
 	return r.DB.Save(tx).Error
 }
